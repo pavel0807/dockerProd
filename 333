@@ -1,0 +1,1071 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 13.11
+-- Dumped by pg_dump version 13.4
+
+-- Started on 2023-07-23 21:35:20 UTC
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 3 (class 2615 OID 2200)
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA public;
+
+
+ALTER SCHEMA public OWNER TO postgres;
+
+--
+-- TOC entry 3104 (class 0 OID 0)
+-- Dependencies: 3
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA public IS 'standard public schema';
+
+
+--
+-- TOC entry 651 (class 1247 OID 16438)
+-- Name: AgeRestriction; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public."AgeRestriction" AS ENUM (
+    'Age',
+    'Kids',
+    'Children',
+    'Body',
+    'Big'
+);
+
+
+ALTER TYPE public."AgeRestriction" OWNER TO postgres;
+
+--
+-- TOC entry 654 (class 1247 OID 24630)
+-- Name: TypeOfAuthor; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public."TypeOfAuthor" AS ENUM (
+    'DIRECTOR',
+    'PRODUCER',
+    'DIRECTOR_PRODUCER',
+    'ACTOR',
+    'OPERATOR',
+    'ART',
+    'ART_LOOK',
+    'COMPOSER',
+    'AUTHOR',
+    'ASSISTANT_PRODUCER',
+    'ASSISTANT_OPERATOR',
+    'GRIM',
+    'SOUND',
+    'VISUAL_EFFECTS',
+    'GAFER',
+    'PHOTO'
+);
+
+
+ALTER TYPE public."TypeOfAuthor" OWNER TO postgres;
+
+--
+-- TOC entry 640 (class 1247 OID 16393)
+-- Name: TypeOfFilm; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public."TypeOfFilm" AS ENUM (
+    'COMEDY',
+    'DRAMA',
+    'FANTASY',
+    'HORROR',
+    'TRILLER',
+    'STUDY',
+    'MELODRAMMA',
+    'MULT',
+    'WEB',
+    'DOC'
+);
+
+
+ALTER TYPE public."TypeOfFilm" OWNER TO postgres;
+
+--
+-- TOC entry 224 (class 1255 OID 41048)
+-- Name: change_mark(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.change_mark() RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE 
+		film_id_to_change UUID;
+		ratingSum numeric;
+		x UUID[];
+	BEGIN
+		x := ARRAY (SELECT "Film".film_id FROM "Film"); 
+		FOREACH film_id_to_change IN ARRAY x
+    	LOOP
+			select sum(rating)/count(rating) into ratingSum from "ratingUser" where film_id_to_change = film_id;
+			IF ratingSum IS NULL
+			THEN
+    			ratingSum := 0;
+			END IF;
+			
+			update "Film" set rating = ratingSum where "Film".film_id = film_id_to_change;
+        END LOOP ;
+    END;
+$$;
+
+
+ALTER FUNCTION public.change_mark() OWNER TO postgres;
+
+--
+-- TOC entry 223 (class 1255 OID 41038)
+-- Name: check_mark(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.check_mark() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE 
+		ratingSum numeric;
+	BEGIN
+		ratingSum := 0.0;
+        --
+        -- Добавление строки в emp_audit, которая отражает операцию, выполняемую в emp;
+        -- для определения типа операции применяется специальная переменная TG_OP.
+        --
+        IF (TG_OP = 'INSERT') THEN
+			select sum(rating)/count(rating) into ratingSum from ratingUser where film_id = NEW.film_id;
+            update Film set rating = ratingSum where film_id = NEW.film_id ;
+        END IF;
+        RETURN NULL; -- возвращаемое значение для триггера AFTER игнорируется
+    END;
+$$;
+
+
+ALTER FUNCTION public.check_mark() OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 202 (class 1259 OID 16429)
+-- Name: Comment; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Comment" (
+    comment_id uuid NOT NULL,
+    film_id uuid NOT NULL,
+    from_id uuid NOT NULL,
+    to_id uuid,
+    date_add date NOT NULL,
+    data text NOT NULL
+);
+
+
+ALTER TABLE public."Comment" OWNER TO postgres;
+
+--
+-- TOC entry 210 (class 1259 OID 41013)
+-- Name: Fest_AD; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Fest_AD" (
+    fest_id uuid NOT NULL,
+    title text NOT NULL,
+    description text NOT NULL,
+    news_or_ad boolean NOT NULL
+);
+
+
+ALTER TABLE public."Fest_AD" OWNER TO postgres;
+
+--
+-- TOC entry 201 (class 1259 OID 16421)
+-- Name: Film; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Film" (
+    film_id uuid NOT NULL,
+    name text NOT NULL,
+    description text NOT NULL,
+    url text NOT NULL,
+    rating double precision NOT NULL,
+    type_of_film public."TypeOfFilm" NOT NULL,
+    data_create date NOT NULL,
+    data_add date NOT NULL,
+    age_restriction public."AgeRestriction" NOT NULL
+);
+
+
+ALTER TABLE public."Film" OWNER TO postgres;
+
+--
+-- TOC entry 205 (class 1259 OID 24676)
+-- Name: News_Ad; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."News_Ad" (
+    news_id uuid NOT NULL,
+    title text NOT NULL,
+    description text NOT NULL,
+    news_or_ad boolean NOT NULL
+);
+
+
+ALTER TABLE public."News_Ad" OWNER TO postgres;
+
+--
+-- TOC entry 203 (class 1259 OID 24663)
+-- Name: author; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.author (
+    author_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    film_id uuid NOT NULL,
+    type public."TypeOfAuthor" NOT NULL
+);
+
+
+ALTER TABLE public.author OWNER TO postgres;
+
+--
+-- TOC entry 204 (class 1259 OID 24668)
+-- Name: authorAbout; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."authorAbout" (
+    user_id uuid NOT NULL,
+    about_person text,
+    about_awards text
+);
+
+
+ALTER TABLE public."authorAbout" OWNER TO postgres;
+
+--
+-- TOC entry 209 (class 1259 OID 32836)
+-- Name: bookmarkUser; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."bookmarkUser" (
+    mark_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    film_id uuid NOT NULL
+);
+
+
+ALTER TABLE public."bookmarkUser" OWNER TO postgres;
+
+--
+-- TOC entry 206 (class 1259 OID 32821)
+-- Name: countViewFilm; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."countViewFilm" (
+    hist_view_id uuid NOT NULL,
+    film_id uuid NOT NULL,
+    count integer NOT NULL
+);
+
+
+ALTER TABLE public."countViewFilm" OWNER TO postgres;
+
+--
+-- TOC entry 207 (class 1259 OID 32826)
+-- Name: historyViewUser; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."historyViewUser" (
+    hist_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    film_id uuid NOT NULL
+);
+
+
+ALTER TABLE public."historyViewUser" OWNER TO postgres;
+
+--
+-- TOC entry 208 (class 1259 OID 32831)
+-- Name: notification; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.notification (
+    not_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    description uuid NOT NULL,
+    is_view boolean NOT NULL,
+    date date NOT NULL
+);
+
+
+ALTER TABLE public.notification OWNER TO postgres;
+
+--
+-- TOC entry 211 (class 1259 OID 41021)
+-- Name: ratingUser; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."ratingUser" (
+    rating_id uuid NOT NULL,
+    film_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    rating numeric NOT NULL
+);
+
+
+ALTER TABLE public."ratingUser" OWNER TO postgres;
+
+--
+-- TOC entry 200 (class 1259 OID 16384)
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users (
+    user_id uuid NOT NULL,
+    name text NOT NULL,
+    surname text NOT NULL,
+    login text NOT NULL,
+    email text NOT NULL,
+    password text NOT NULL,
+    "dataBirthday" date NOT NULL,
+    is_author boolean NOT NULL,
+    path_to_image text,
+    is_active boolean NOT NULL
+);
+
+
+ALTER TABLE public.users OWNER TO postgres;
+
+--
+-- TOC entry 3089 (class 0 OID 16429)
+-- Dependencies: 202
+-- Data for Name: Comment; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Comment" (comment_id, film_id, from_id, to_id, date_add, data) FROM stdin;
+9b8b6960-8408-46a8-803b-67bb884dab4e	15632316-1aab-4df8-8897-676b26ebb7e3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-22	Первый коммент
+9a9e2c78-cf45-4806-8f52-397ba9f3ff25	15632316-1aab-4df8-8897-676b26ebb7e3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	9b8b6960-8408-46a8-803b-67bb884dab4e	2023-07-22	первый Ответ на первый коммент
+3b71d01f-a7fe-4a53-8468-a6dcbc5eb99d	15632316-1aab-4df8-8897-676b26ebb7e3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	9b8b6960-8408-46a8-803b-67bb884dab4e	2023-07-23	Первый ответ на первый ответ на первый коммент
+bf5702d0-2ace-4247-9eb0-22deb56bea12	15632316-1aab-4df8-8897-676b26ebb7e3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	9b8b6960-8408-46a8-803b-67bb884dab4e	2023-07-23	Первый ответ на Первый ответ на первый ответ на первый коммент
+791df7d5-bfd2-4f47-a187-29a613c82fa2	15632316-1aab-4df8-8897-676b26ebb7e3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	Второй коммент
+27482bef-8839-4484-98f0-a59ddb59e0b5	15632316-1aab-4df8-8897-676b26ebb7e3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	791df7d5-bfd2-4f47-a187-29a613c82fa2	2023-07-23	Ответ на второй коммент
+75183154-59a8-4a92-9900-723e0e3e79e5	15632316-1aab-4df8-8897-676b26ebb7e3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	791df7d5-bfd2-4f47-a187-29a613c82fa2	2023-07-23	Второй ответ на второй коммент
+d362b13d-bd9f-4b5e-aa75-22ba398d687c	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	dsdasdsa
+4c91152e-ef1a-4d2b-ac72-48703e4105b6	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	sfsdfsfsfsdfsdfsdfds
+e730a60b-7d96-4196-a73b-3450daaaef48	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	dsadsad
+874eb64d-b73b-4dcb-941c-c8d0ad5320e2	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	sdsadasdsada
+56121f2f-09f2-4cfd-b609-6a5eb15d85e7	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	dsadas
+80f0be31-1bf8-4756-913b-2fea908f5adf	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	dasd
+bcb52132-5b19-4083-8d3e-c7af5470f224	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	dasdas
+3891df73-9596-4786-9086-cbf781e67b7a	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	dasdsadsadsad
+8b8b3eef-eb5b-40cb-95e1-c6d5e0714bdf	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	a
+3c24bfb0-b3fa-403a-8356-fe76b7bd68c3	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	a
+0208e58e-d168-42ba-8595-6ef803024f9e	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	a
+3ee24c0f-0a67-428f-96bd-a4359ab9aae3	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	123
+7a67f0f6-7529-489c-8ba0-2c1fcd0f9da2	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	321321312
+c767bbbd-5f1a-481d-8b04-5f334df9505c	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	3ee24c0f-0a67-428f-96bd-a4359ab9aae3	2023-07-23	312
+51fe119d-8be5-4091-b5c7-8903d170dba7	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	bcb52132-5b19-4083-8d3e-c7af5470f224	2023-07-23	dsadasd
+ba4e681d-eb61-470d-9549-44a6245cfa8c	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	3ee24c0f-0a67-428f-96bd-a4359ab9aae3	2023-07-23	dasdsad
+326283f8-f26f-4d76-86d9-ff90c248dacc	abd98940-f6aa-4df4-b688-b2b53ccb2847	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	bvcxvxc
+4d62fd47-854a-4a9b-be0d-ea5280c67d12	abd98940-f6aa-4df4-b688-b2b53ccb2847	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	vxcvxc
+8d2612f0-e13c-4940-a65f-1dd737413c90	abd98940-f6aa-4df4-b688-b2b53ccb2847	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	vcxvxc
+5068c33b-b74d-4eb9-a040-96065ea42ebd	abd98940-f6aa-4df4-b688-b2b53ccb2847	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	vcxvcxv
+7df13bd4-cff4-41f7-8896-465a7f40e902	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	vxc
+f64dd908-7836-4329-b399-32d0cdbb6bc4	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	fdfgsdgsdg
+5a009e81-f8cc-4e5a-b78f-a3e02fcac8fc	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	gdsgsdg
+fa26baf7-1f67-45d6-a5e2-98945c0b3d40	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	gsdgdsgsdg
+909ad08a-7bb2-48db-a157-c7e2ed237fb1	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	dsadasd
+37440143-7e2c-43ee-ac8c-75a565eaaea8	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	dsadasdas
+3fa787e2-53a9-4d81-9d04-2524d0c5313c	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	dasdasd
+a648915f-42b7-4056-ae70-7d9680e93bbb	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	dasdasda
+6642c058-73d2-4ccb-aca5-53ae00e2692b	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	fdsfsdf
+ca14bb46-261f-4195-b44a-6d19fc2e0bd1	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	fsdfsdf
+38dc7644-7e10-4228-b025-2f8b466fc927	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	fsdfsdf
+44ed1a1d-79d2-49c4-bbf2-94d67d92cf3a	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	\N	2023-07-23	fsdfdsfsdf
+\.
+
+
+--
+-- TOC entry 3097 (class 0 OID 41013)
+-- Dependencies: 210
+-- Data for Name: Fest_AD; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Fest_AD" (fest_id, title, description, news_or_ad) FROM stdin;
+6bf535b2-3a9c-4b39-88a4-7a2a66db0dcd	Hot Moscow Fest	 О проведении фестиваля в 2023 году пока не сообщалось. Ниже — описание прошлогодней программы. 26, 27 и 28 августа 2022 года на территории Main Stage в Москве пройдет грандиозный фестиваль Hot Moscow Fest.\n\n«Объединить лучших, чтобы дать возможность молодым!» – такова философия организаторов Hot Moscow Fest. Мероприятие соберет в одном месте лидеров различных отраслей, которые поделятся своими знаниями и опытом с теми, кто только начинает свой путь.	t
+b8b58494-5fbc-4a8c-b593-fcc2dd76fa7f	Награждение Hot Summer	 1. Ангелина\n2. Павел\n3.Евгений	f
+\.
+
+
+--
+-- TOC entry 3088 (class 0 OID 16421)
+-- Dependencies: 201
+-- Data for Name: Film; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Film" (film_id, name, description, url, rating, type_of_film, data_create, data_add, age_restriction) FROM stdin;
+e29dbbe5-aa42-4c74-b7a1-39b97a7980d9	Barbie	Барби описание	eJdeUnZ6Fg4	0	STUDY	2015-01-01	2023-07-01	Children
+4c1897a4-3682-4203-b15d-acab2f25ec4a	Крушение	Крушение описание	eJdeUnZ6Fg4	3	TRILLER	2014-01-01	2023-07-01	Body
+3e3750e4-34bb-4995-850e-b7bbcc2ab601	Постучись в мою двреь	Постучись описание	eJdeUnZ6Fg4	4	TRILLER	2011-01-01	2023-07-01	Big
+0a6f34e7-6173-4c93-8bfd-13dabce64bf1	Форсаж 8	Форсаж 8 описание	eJdeUnZ6Fg4	0	TRILLER	2018-01-01	2023-07-01	Body
+8be6464e-efd1-4bcd-8ba6-02f282e85275	Форсаж 9	Форсаж 9 описание	eJdeUnZ6Fg4	3	TRILLER	2017-01-01	2023-07-01	Children
+94967fc9-cdea-4689-9b00-7dcd0014691f	Форсаж 10	ФОрсаж 10 опсиание	eJdeUnZ6Fg4	0	TRILLER	2023-01-01	2023-07-01	Big
+abd98940-f6aa-4df4-b688-b2b53ccb2847	Мстители	Мстители описание	eJdeUnZ6Fg4	0	FANTASY	2017-01-01	2023-07-01	Kids
+15632316-1aab-4df8-8897-676b26ebb7e3	Гарри Потер - 1	Гарри	eJdeUnZ6Fg4	0	FANTASY	2017-01-01	2023-07-01	Body
+2c83d72c-5dc0-4531-86d6-4b047f4f47b4	Лед	Лед описание	eJdeUnZ6Fg4	0	TRILLER	2017-01-01	2023-07-01	Big
+2c41fa48-4c71-4c5a-82a2-d6f9fec0a9c6	Маша	авы	eJdeUnZ6Fg4	0	TRILLER	2013-01-01	2023-07-01	Body
+1432f43a-a99a-4e6b-82bc-3a862292fa5f	Гарри Потер - 2	Описание гарри поттера	eJdeUnZ6Fg4	4.5	TRILLER	2011-01-01	2023-07-01	Big
+6a900cf1-49f5-4ae8-9540-1463ef033d9c	гарри поттер - 4	вфыв	eJdeUnZ6Fg4	0	FANTASY	2013-01-01	2023-07-01	Children
+636121f4-11f9-491e-95a2-e083148e3709	Гравитация	Гравитация описание	eJdeUnZ6Fg4	0	FANTASY	2012-01-01	2023-07-01	Big
+9d406001-cfc4-4f0c-9a18-507f86399a8b	Территория	Территория описание	eJdeUnZ6Fg4	0	HORROR	2012-01-01	2023-07-01	Kids
+b2b8b929-4f6d-4d03-8d0d-a0bdfc7f4764	Лед 2	Фильм начинается с хоккейного матча. Надя Лапшина, главная героиня, едет в ЗАГС, чтобы выйти замуж за Сашу Горина — хоккеиста. После успешного матча он доезжает в ЗАГС и расписывается с Надей. Проходит время. Надя беременна; они с мужем ожидают девочку. Саша уезжает на очередной матч, и сразу после этого у Нади начинаются роды. Скорая помощь увозит её в роддом. Хоккейный матч команда «Байкпромаш» выигрывает, команда поздравляет Горина. Он звонит жене, но трубку берёт врач. Саша получает печальную и горькую новость: Надя умерла во время родов из-за осложнения, связанного с её давней травмой в первом фильме, однако ребёнка удалось спасти. После потери жены Саша пытается в одиночку воспитывать свою дочь, названную в честь матери, но попытки терпят неудачу. На помощь приходят многие знакомые, а он слишком остро реагирует на помощь. Горин до безумия и отчаяния любит дочь, всячески о ней заботится и боится за девочку. Он всеми силами пытается оградить её от любой опасности, не желая потерять — как когда-то потерял её мать. 	9c3Z4Hp4tWM	0	DRAMA	2022-01-01	2023-07-01	Kids
+d1a71f78-9da9-4243-a19f-72fb3b529976	Три богатыря	Три богатыря	XrmEns3sE60	0	MELODRAMMA	2020-01-01	2023-07-04	Kids
+f077ecb1-0447-4eaf-bde2-9b512a36d73e	Check Youtube	dsadsa	https://www.youtube.com/embed/BFyHyGsCl-w	0	DOC	2009-01-01	2023-07-23	Body
+ec97737d-6ffe-4b0b-9ac4-95a8f790cec8	Check rutube	dsa	https://vk.com/video_ext.php?oid=-5790407&id=456239154&hd=2	0	DRAMA	2013-01-01	2023-07-23	Body
+5f1a331c-41c7-43a2-a404-4fcb729e9049	CHECK RRUUUUU	DAS	https://rutube.ru/play/embed/6c900c2279e9aa35fbbfcf86deb8540b/	5	WEB	2015-01-01	2023-07-23	Children
+\.
+
+
+--
+-- TOC entry 3092 (class 0 OID 24676)
+-- Dependencies: 205
+-- Data for Name: News_Ad; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."News_Ad" (news_id, title, description, news_or_ad) FROM stdin;
+5a05a1f3-0966-46dd-8b72-62cd38f90e1f	Почему Афганистан?	 В Афганистане, куда США отправили военный контингент после 11 сентября, американские военные нанимали переводчиков из местного населения — за хорошую службу им и их семьям обещали предоставить возможность уехать в Америку. Работа опасная — у сержанта Джона Кинли (Джейк Джилленхол) только что подорвался прошлый переводчик. Вместо него Кинли берет на службу Ахмеда (Дар Салим). У Ахмеда не лучшие рекомендации — из-за непростого характера он не сработался с несколькими военными до этого, кроме того, он может ослушаться приказа. Но это, как скоро выяснится, плюс: когда группа Кинли попадет в окружение, спасение американского военного будет зависеть только от его афганского помощника.	t
+dfa8cc38-756d-40a4-9515-1c245acf22bb	Худший результат	 вфывфывф	t
+e148e714-a483-403c-8ebf-5e08b0e35ba0	Арест звезды	 выфвфыв	t
+21f7c055-add6-416a-9bc8-e9304dde5e2e	Кастинг	 ОВФЫВЫ	f
+\.
+
+
+--
+-- TOC entry 3090 (class 0 OID 24663)
+-- Dependencies: 203
+-- Data for Name: author; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.author (author_id, user_id, film_id, type) FROM stdin;
+9ba1c804-6f88-4021-9f68-39bfcc6b3b60	a68b1452-d6f1-4469-ab67-5e8f20d118f9	0a6f34e7-6173-4c93-8bfd-13dabce64bf1	DIRECTOR
+82be5f5a-e829-43cd-9d47-0029aa8f71b8	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275	DIRECTOR
+4baed80c-f38d-4e51-a99e-9ef2bc07d711	a68b1452-d6f1-4469-ab67-5e8f20d118f9	94967fc9-cdea-4689-9b00-7dcd0014691f	DIRECTOR
+e61ae16f-29c5-4f28-baf0-ce1c7dbd42ce	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847	DIRECTOR
+c2c76f1a-0866-4773-860d-dc6e35c786c0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	e29dbbe5-aa42-4c74-b7a1-39b97a7980d9	DIRECTOR
+e7831530-5a54-4675-8e3f-9c8c64981a59	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a	DIRECTOR
+e5b8e46a-a461-4478-99dd-4ab8ff7fb039	a68b1452-d6f1-4469-ab67-5e8f20d118f9	3e3750e4-34bb-4995-850e-b7bbcc2ab601	DIRECTOR
+461741b6-5559-4cb5-990d-677bcc1f2b68	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3	DIRECTOR
+36a4808e-1730-44d9-8d3b-7b0768dbb1cb	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c83d72c-5dc0-4531-86d6-4b047f4f47b4	DIRECTOR
+069a4d45-d10e-4cd8-8ada-a71c546f2d7c	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c41fa48-4c71-4c5a-82a2-d6f9fec0a9c6	DIRECTOR
+a96a8270-9bc9-42e4-bc35-27fd264b2958	a68b1452-d6f1-4469-ab67-5e8f20d118f9	1432f43a-a99a-4e6b-82bc-3a862292fa5f	DIRECTOR
+50111303-7339-4a11-936c-1d63683c6d21	a68b1452-d6f1-4469-ab67-5e8f20d118f9	6a900cf1-49f5-4ae8-9540-1463ef033d9c	DIRECTOR
+13b01dae-923e-4db3-a1b8-6e1ce5a81c39	a68b1452-d6f1-4469-ab67-5e8f20d118f9	636121f4-11f9-491e-95a2-e083148e3709	DIRECTOR
+316fd87f-fed9-4592-bf20-7ad2159798e3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	9d406001-cfc4-4f0c-9a18-507f86399a8b	DIRECTOR
+37345abc-1991-4e7b-af06-10bd81bed703	6c668797-4e66-4056-b465-bee9408e12ec	b2b8b929-4f6d-4d03-8d0d-a0bdfc7f4764	DIRECTOR
+2fa4aa0b-0548-43e8-ada2-a84d1c9264a2	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976	DIRECTOR
+4c79996b-dff2-46e5-a439-297b0c82c828	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976	ASSISTANT_PRODUCER
+ed522f64-4fa3-4a06-bb81-84c793397073	a68b1452-d6f1-4469-ab67-5e8f20d118f9	0a6f34e7-6173-4c93-8bfd-13dabce64bf1	DIRECTOR_PRODUCER
+1a871886-e17e-42ea-8e76-3ee484a785a8	a68b1452-d6f1-4469-ab67-5e8f20d118f9	f077ecb1-0447-4eaf-bde2-9b512a36d73e	DIRECTOR
+0e776729-b8f3-409d-a64b-b5843abe79ee	a68b1452-d6f1-4469-ab67-5e8f20d118f9	ec97737d-6ffe-4b0b-9ac4-95a8f790cec8	DIRECTOR
+0c1ec508-922e-43da-9998-4efbb264131c	a68b1452-d6f1-4469-ab67-5e8f20d118f9	5f1a331c-41c7-43a2-a404-4fcb729e9049	DIRECTOR
+\.
+
+
+--
+-- TOC entry 3091 (class 0 OID 24668)
+-- Dependencies: 204
+-- Data for Name: authorAbout; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."authorAbout" (user_id, about_person, about_awards) FROM stdin;
+a68b1452-d6f1-4469-ab67-5e8f20d118f9	Я автор	Победитель конкурса 1; Победитель конкурса 2;
+\.
+
+
+--
+-- TOC entry 3096 (class 0 OID 32836)
+-- Dependencies: 209
+-- Data for Name: bookmarkUser; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."bookmarkUser" (mark_id, user_id, film_id) FROM stdin;
+a44e670b-d9c4-4ff4-94e9-b653e9684084	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c41fa48-4c71-4c5a-82a2-d6f9fec0a9c6
+dbe1ea25-a511-4ae3-a9eb-62bd1aace48b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c83d72c-5dc0-4531-86d6-4b047f4f47b4
+6f93104f-bbae-4937-8057-71df9f924e34	a68b1452-d6f1-4469-ab67-5e8f20d118f9	9d406001-cfc4-4f0c-9a18-507f86399a8b
+6b3731c4-2251-43f9-bb53-098a9ced9c68	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+\.
+
+
+--
+-- TOC entry 3093 (class 0 OID 32821)
+-- Dependencies: 206
+-- Data for Name: countViewFilm; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."countViewFilm" (hist_view_id, film_id, count) FROM stdin;
+7d4b3fd7-af7d-4e69-ad8b-577a1a968549	1432f43a-a99a-4e6b-82bc-3a862292fa5f	8
+d7546a2e-49c1-4aeb-ab91-300da0f4117a	0a6f34e7-6173-4c93-8bfd-13dabce64bf1	8
+e786fe5b-48d4-4497-824d-cd5b682d8e4e	e29dbbe5-aa42-4c74-b7a1-39b97a7980d9	1
+aa986b12-1054-4af8-969d-f20b39ff7cbc	b2b8b929-4f6d-4d03-8d0d-a0bdfc7f4764	7
+3d5c3554-c793-4428-9a2c-e536e64b13fb	abd98940-f6aa-4df4-b688-b2b53ccb2847	26
+dccab944-1f98-4e1f-8033-181707fa3568	3e3750e4-34bb-4995-850e-b7bbcc2ab601	4
+f4e3971c-8edd-4214-b641-36b3c3c3cae5	9d406001-cfc4-4f0c-9a18-507f86399a8b	2
+c121e943-9742-4529-b632-7914d5a7c998	d1a71f78-9da9-4243-a19f-72fb3b529976	34
+73292580-8897-4767-9421-e40ae2640a95	ec97737d-6ffe-4b0b-9ac4-95a8f790cec8	2
+3ecdd212-4a94-4ab7-b7de-795330adb798	6a900cf1-49f5-4ae8-9540-1463ef033d9c	0
+415f5e4a-f82c-4b5a-b9b0-ecaebe0a2e8e	636121f4-11f9-491e-95a2-e083148e3709	0
+0f05a98b-8143-4db8-bf0f-00815111e011	5f1a331c-41c7-43a2-a404-4fcb729e9049	4
+4ca35e45-3a5f-4c60-b47a-5b7fb0ba2d60	94967fc9-cdea-4689-9b00-7dcd0014691f	2
+95bd823d-bc90-4d9a-a455-a7285946cd8f	8be6464e-efd1-4bcd-8ba6-02f282e85275	35
+7c570bba-b8b8-49b1-990e-1bdb6f9605ba	15632316-1aab-4df8-8897-676b26ebb7e3	174
+158cf0fb-f364-428e-b867-88f0e2834512	f077ecb1-0447-4eaf-bde2-9b512a36d73e	5
+fc349363-3aa1-49e9-bc01-037f2100e373	2c83d72c-5dc0-4531-86d6-4b047f4f47b4	8
+05b71518-15fe-4f23-a3fa-e1d710730cba	4c1897a4-3682-4203-b15d-acab2f25ec4a	27
+895cc382-017a-454a-9e1f-69e1dca23c5a	2c41fa48-4c71-4c5a-82a2-d6f9fec0a9c6	1
+\.
+
+
+--
+-- TOC entry 3094 (class 0 OID 32826)
+-- Dependencies: 207
+-- Data for Name: historyViewUser; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."historyViewUser" (hist_id, user_id, film_id) FROM stdin;
+86be34b7-bbf0-4ef0-8b74-53f6b2a5c443	a68b1452-d6f1-4469-ab67-5e8f20d118f9	0a6f34e7-6173-4c93-8bfd-13dabce64bf1
+648c3f2d-3a4f-4a9c-8fb6-cdee61379c19	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+626eca6c-c69c-43f6-ae68-312152444c89	a68b1452-d6f1-4469-ab67-5e8f20d118f9	94967fc9-cdea-4689-9b00-7dcd0014691f
+76d37ca8-eab1-42b5-995b-e30ea0fb5bbd	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+ba31e47b-4806-4cd4-ae9a-57569f7c2f36	a68b1452-d6f1-4469-ab67-5e8f20d118f9	e29dbbe5-aa42-4c74-b7a1-39b97a7980d9
+f9dfceed-2f7b-42c3-8fca-ddd1b5678555	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+a1fccfde-da03-4cbc-8904-5ef13bcecbcb	a68b1452-d6f1-4469-ab67-5e8f20d118f9	3e3750e4-34bb-4995-850e-b7bbcc2ab601
+3fbb5797-77ab-4595-8c16-2fb720c228ba	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+b2aa3267-b3a9-43bd-9d31-708f4ccf7c9f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c83d72c-5dc0-4531-86d6-4b047f4f47b4
+590fb70b-b86e-440b-9f7d-65c156d5038e	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c41fa48-4c71-4c5a-82a2-d6f9fec0a9c6
+4caf9b23-bc49-4778-93a6-545291cd5065	a68b1452-d6f1-4469-ab67-5e8f20d118f9	1432f43a-a99a-4e6b-82bc-3a862292fa5f
+4f1fc892-bd4d-4f9d-b401-e299acaae91d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	6a900cf1-49f5-4ae8-9540-1463ef033d9c
+8361d4bf-1072-41aa-aca1-1750f61055a9	a68b1452-d6f1-4469-ab67-5e8f20d118f9	636121f4-11f9-491e-95a2-e083148e3709
+39960737-9446-4bc0-b8af-05b4c3fdd172	a68b1452-d6f1-4469-ab67-5e8f20d118f9	9d406001-cfc4-4f0c-9a18-507f86399a8b
+933eca19-be7b-4afd-a367-7cd06741bbd2	a68b1452-d6f1-4469-ab67-5e8f20d118f9	3e3750e4-34bb-4995-850e-b7bbcc2ab601
+04d108af-ec89-420f-a486-5da825fe84a2	6c668797-4e66-4056-b465-bee9408e12ec	b2b8b929-4f6d-4d03-8d0d-a0bdfc7f4764
+53e3731b-c21e-48b3-aa78-5c49a3e09452	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c83d72c-5dc0-4531-86d6-4b047f4f47b4
+654a8b8d-4bb3-4260-a537-2c8d5ede055b	6c668797-4e66-4056-b465-bee9408e12ec	b2b8b929-4f6d-4d03-8d0d-a0bdfc7f4764
+02554ed6-0dc0-41ae-ac87-7a7915d1a23b	6c668797-4e66-4056-b465-bee9408e12ec	b2b8b929-4f6d-4d03-8d0d-a0bdfc7f4764
+0bc6ae35-7832-4e5c-8cd2-8e3845fc44f5	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+56c6019d-8d16-4a97-95d3-b1ca9c7b7066	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+96ef68b2-bb02-4146-8c0e-7a47e8e77e03	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+fdf8a986-575c-4d80-b78d-8dc23b4270f4	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+1a5b0589-fbd1-4391-a8fd-2dcb96b069ff	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+83d2c437-0883-4586-98ac-b192ea0bd4f2	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+456a391d-83ed-46bc-96fb-15614df6e1d0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+8da69751-124e-4e55-9bde-85c8e0d5e614	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+6a545fca-8f2e-4b7d-9dbd-92513c801821	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+b41afde2-3edd-49ff-ad53-005994aac013	a68b1452-d6f1-4469-ab67-5e8f20d118f9	0a6f34e7-6173-4c93-8bfd-13dabce64bf1
+0431869c-2d30-41a1-99b7-63980fd2d76c	a68b1452-d6f1-4469-ab67-5e8f20d118f9	0a6f34e7-6173-4c93-8bfd-13dabce64bf1
+cb2a87b6-3cf7-423a-9766-a880579f73fc	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+d6e793c5-d147-48c2-a84f-6dcc063d90b7	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+86003b46-85b9-4662-8e3d-327aeff1c348	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+ef2641b1-2354-4cbf-8225-1572f9be13e3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+39914152-23ee-467f-acb6-720eafd5f132	a68b1452-d6f1-4469-ab67-5e8f20d118f9	0a6f34e7-6173-4c93-8bfd-13dabce64bf1
+3c06d547-db00-4a65-8ddb-73afe6e7a788	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+47e04b50-b2a2-47a4-bc99-790c9cc3c76c	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+851875b2-6064-40a1-824a-95d966b5bf78	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+746fd009-0a9b-4e81-8451-446baa768213	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+17d758e8-d9a2-45b6-a376-2d5e2dd7436d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+38335382-1b34-4492-8095-9f14579fdf9e	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+736663f0-4832-42ee-8680-2f98fcce9e12	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+6c025a75-4e37-4fb0-97b5-2683bedea213	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+337b377f-deb5-4900-8632-23b02367b529	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+b4a78d91-edba-4074-9ec3-655c47a52985	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+bf17eb71-58df-4544-9980-addbb0c5f904	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+43dbe675-f560-4cc8-b6bc-0fc63b63869b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+645b2971-b243-4cc5-8f18-f1a5e3d38326	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+1a622a32-0add-40db-a050-3e831093150b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+b1ed391d-08c9-47ad-9c2c-85ecd5e591c5	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+0c847466-df29-430e-b9e3-bfd2e574607a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+3380f501-50f4-4a10-973a-449950dfdc57	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+ca7e58ce-0dc3-45bf-a031-99d0f5266ea5	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+82958d0d-5cde-4892-ba35-0875f6aeb035	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+d66ea96e-d0a5-4a06-be43-ad9922ac59a7	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+11bb390e-cf1a-48c5-8c36-02f0a23aea35	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+0463c5aa-9c91-475d-803b-236689c878dd	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+e997695c-f58f-414b-88e9-c67624d975a0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+4ea43437-67ec-4452-b8ab-1f87a5c13203	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+d537fe7b-bd41-48a8-aaca-152aa3d30adc	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+631e817c-846e-4c57-ae44-a057f10464fd	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+2c41d77f-c147-4f38-92e4-0179d5ae05b0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+363210cd-bbb5-4bd8-ad49-3484556d0140	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+dc0831ca-0ee4-478e-9c2b-46933bee6976	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+bb39de6b-e86d-4737-9060-9890ab2a854e	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+2da9c2c8-ae68-4af5-935c-81742fea8177	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+179d3b68-21dd-4aed-9d0b-7b80a6e376b6	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+03437fb8-8d59-472c-b2fe-31a0f78e0d53	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+b74c639c-019a-40d0-9cad-9e12a962909a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+2b2346b3-6210-49aa-8f7f-3de4f4608d2f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+d48ae5c7-816c-4ac7-9556-3ec9302ae12b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+42d49c99-092b-4f9d-9248-0b01bb750e74	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+34266bf6-71ae-4c52-86ce-5d29c2152b29	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+231b9699-17df-4e25-96da-6911f9737a42	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+aecfb849-ac52-40d0-b39e-b34762603303	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+0515c4b0-6821-4c71-8a34-1c28f46b6c57	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+be31a01f-c7e8-4daa-b271-be03e5ffd3bc	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+f8221033-1b03-4449-a7ce-c1a53f4956ad	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+217d21dc-14e5-4797-9799-90276c50e337	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+8cb43916-c3af-457a-be6d-db4d7574bf9b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+d8eb7569-7865-47a6-9a4b-2c31a3d5a697	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+064e9557-d785-468d-9a4e-c2108677cf40	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+5097f759-7a69-4c70-b48c-807d24b00764	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+f9295182-b6bd-4488-bc57-a1076093a8cd	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+50a85e13-e415-47e9-b8d2-f0531c4ac52a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+cee8ae06-b04b-4431-86a0-46367a7694db	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+10d2e30b-21cd-4404-a970-11923f976d58	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+5950e910-baf2-40bf-ab3b-94d5e57ca6e4	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+13be7ab1-f670-4697-ab03-2a8d25646503	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+f30cc4c2-706a-4bbe-8c63-d1ba7bb2c141	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+d520379c-5804-4c62-97d7-7d4149409b44	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+56c642ff-cd17-4564-9919-30e9ed6418d4	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+94acce7a-5d58-4107-bb19-463bc5f8e3d4	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+85092e25-d57d-46f5-8231-dc85284fe4c7	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+bb2a1a6f-b460-4d91-bc9c-7ae4b59f2fa7	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+a866e08a-9f64-432b-bc27-2ba84b5ada21	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+34c0c065-02e7-44ab-9029-eb5156763db4	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+058608fd-a622-46dd-9918-8bee9e96b78c	a68b1452-d6f1-4469-ab67-5e8f20d118f9	0a6f34e7-6173-4c93-8bfd-13dabce64bf1
+32d730eb-767a-4ae6-b272-72cb3356bc65	6c668797-4e66-4056-b465-bee9408e12ec	b2b8b929-4f6d-4d03-8d0d-a0bdfc7f4764
+7e765aa4-2ec8-419c-885c-95911f6b9852	6c668797-4e66-4056-b465-bee9408e12ec	b2b8b929-4f6d-4d03-8d0d-a0bdfc7f4764
+8d2fd566-589d-437b-8d8f-576cf846ca24	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+89bff7a4-d6a8-421a-8f23-988a28502bcc	6c668797-4e66-4056-b465-bee9408e12ec	b2b8b929-4f6d-4d03-8d0d-a0bdfc7f4764
+81d74d8e-91f8-465b-b617-61dcf5f016f7	6c668797-4e66-4056-b465-bee9408e12ec	b2b8b929-4f6d-4d03-8d0d-a0bdfc7f4764
+31cfb3ca-f62f-44bb-a8a6-89feb4ee0734	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+15a6a64f-e625-464c-ad2d-0390b129e63d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+7dc806bc-ab6b-43e9-b5ea-d175518e7210	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+7e2b5318-6508-41b1-bdde-0f7b703e1681	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+ccc46e70-be4a-494c-a707-166660ece527	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+82702f32-7f98-465b-bec6-0aafb79088a7	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+2acb2a9f-b81f-435e-afb7-a123779f8a98	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+d654f188-e7c4-4a23-a8e3-dfdf857e1e22	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+3caff22f-f41c-432e-bd8a-de43a3074d85	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+faad5e20-b3c1-4e2d-b211-9295e6054b87	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+35feaf4a-5091-4143-8b31-46a1b3f6e0bf	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+0b6a5d1c-dc63-4c77-b7c3-79e4ac8bb9fb	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+ce5359e1-68c9-4e86-ad8b-8ace40f71a14	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+98be1af2-df22-4e8d-994b-a2c901398d6e	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+4af2d0ff-609e-4443-9620-97eb71c2aad1	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+afc1134a-e4bc-4243-a37c-a326a1dd8631	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+12f0abf5-2a18-4212-bab1-edd4278f4478	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+6c428f7a-e6f9-4563-82e3-908c84999c45	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+ea8cabb7-5cb4-42d1-b993-708a8a78da4e	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c41fa48-4c71-4c5a-82a2-d6f9fec0a9c6
+d0649032-0f7a-4c91-9c90-f1dcb67edb21	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+fa12e717-f46d-440a-86e1-e8802a18747f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c83d72c-5dc0-4531-86d6-4b047f4f47b4
+a078fc5e-0668-403b-94bb-705d75e8b241	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c83d72c-5dc0-4531-86d6-4b047f4f47b4
+012fde05-9d3e-4c65-b983-8a1799e5f24c	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c83d72c-5dc0-4531-86d6-4b047f4f47b4
+ba7177c6-cc53-44d2-b631-322ca0f57809	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c83d72c-5dc0-4531-86d6-4b047f4f47b4
+f6b9b89d-7b00-4796-b3b8-b8876660c536	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c83d72c-5dc0-4531-86d6-4b047f4f47b4
+a4c9fa3d-5eb3-4b7a-a110-8cf2295c4fad	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+937ead58-c58e-45c0-a2db-ce058fcb5dad	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+58d19ada-d968-4fe6-bf8e-993fba4b6cac	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+23ae9ea8-1310-409f-b2f9-1d8368c519dc	a68b1452-d6f1-4469-ab67-5e8f20d118f9	3e3750e4-34bb-4995-850e-b7bbcc2ab601
+d83af156-e2ca-41f3-a7b6-f734b35dc291	a68b1452-d6f1-4469-ab67-5e8f20d118f9	3e3750e4-34bb-4995-850e-b7bbcc2ab601
+b8d30650-617a-4ec4-bb39-15893fa7bdba	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c83d72c-5dc0-4531-86d6-4b047f4f47b4
+07a944a5-c92a-4d43-976f-726a9e66dcf1	a68b1452-d6f1-4469-ab67-5e8f20d118f9	1432f43a-a99a-4e6b-82bc-3a862292fa5f
+dc02405b-e065-47fc-8456-35670ee3e60c	a68b1452-d6f1-4469-ab67-5e8f20d118f9	1432f43a-a99a-4e6b-82bc-3a862292fa5f
+40db7304-3db8-4815-b759-dfd9ce928811	a68b1452-d6f1-4469-ab67-5e8f20d118f9	1432f43a-a99a-4e6b-82bc-3a862292fa5f
+93c480ef-863c-4a9b-bf16-719234976671	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+56181453-855a-46e6-85da-dc524737082f	6c668797-4e66-4056-b465-bee9408e12ec	b2b8b929-4f6d-4d03-8d0d-a0bdfc7f4764
+5fff50ff-c221-43d3-963d-e344e4407207	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+196de4b6-ba3e-421d-bd22-abdd97a910cd	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+71f80198-47c0-49fe-ab7a-f7025bdf0241	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+8240083c-bad4-4f55-b418-b366638dab4f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	3e3750e4-34bb-4995-850e-b7bbcc2ab601
+2772ada6-1203-4a15-ad55-203945324096	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+bcfee7db-37ca-4eab-8acc-e71cd871cf38	a68b1452-d6f1-4469-ab67-5e8f20d118f9	0a6f34e7-6173-4c93-8bfd-13dabce64bf1
+6eec52cb-52d6-4d6c-b21a-b74c7de0e5b1	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+b07f3b01-7639-4978-a9c0-0307d79565e3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	0a6f34e7-6173-4c93-8bfd-13dabce64bf1
+b3cfdb27-e4c0-4402-b6f5-b2d703b48969	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+48c7ec79-d6d3-439e-a31f-1aba56cfd1e0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+63befe5d-bf6d-4a1f-bbec-05f880419c78	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+f4b60b0d-d953-42aa-bf22-253e66b2dc45	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+6b336dfd-2528-4286-bfb3-f25d0a6d5a91	a68b1452-d6f1-4469-ab67-5e8f20d118f9	1432f43a-a99a-4e6b-82bc-3a862292fa5f
+476685a3-0486-43ab-acad-927918902811	a68b1452-d6f1-4469-ab67-5e8f20d118f9	1432f43a-a99a-4e6b-82bc-3a862292fa5f
+f68a1d63-61b3-4992-a0ef-1ec397349b94	a68b1452-d6f1-4469-ab67-5e8f20d118f9	1432f43a-a99a-4e6b-82bc-3a862292fa5f
+01534d31-ca66-4cb0-bef1-4e40fe1dea50	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+00db5cec-aa3f-456d-8b31-042fb21e6f09	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+38e4a1a7-1a72-44db-8360-06dc370555f8	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+f943d6a9-ffc6-49d8-a63b-e5b515666bb7	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+ed70cf19-c442-4e37-9f32-503cf4ec74fe	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+52553df9-7b40-4f42-b4a2-27137a141a2b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+5df0792f-1e7e-4354-ae39-42c82561e05e	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+3f93a796-94d8-41fa-8a90-7c9c613ca83e	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+370fe3d5-4249-49fa-9228-d0c0b75137fb	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+2fa5ad91-d6a9-4d41-87c2-b97af45abddb	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+ddde30ae-6c9f-42b7-9a6c-87ac5182c191	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+cbd0b4b3-0a4c-46fa-96fa-d84c732f9e14	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+9dbeb57b-4b7f-4343-aa3a-5f90966cb8f9	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+b93afbad-46b4-4dde-9be0-fa7be2ecd82a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+01908f8a-f21e-4cdb-b06e-0a9409fa9b2c	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+65c93c82-51d4-475e-adf4-eba1a22f8c26	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+101f8795-9bfa-4b4d-be0e-c58325e1f187	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+6dc8013a-ed52-424a-b2d7-7dc14c63e0a1	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+982c0a9f-987c-4714-8bbb-28de3a1a34f6	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+fa7f706d-3c94-4679-aeb0-eb1332cc4e46	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+f15b9268-0bd4-47b8-a11c-95911c62b9e2	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+eb405846-2f5f-4f04-8f2f-90530d472a24	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+e92e4327-8519-43db-850d-bae53d69fff3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+50ab1513-baa0-4c77-9be0-9518f9934438	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+805bd7b1-a58a-4545-b36e-3c3134b51515	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+9316f202-6343-409e-b6a2-0c48987c0537	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+03b36cf7-d730-4184-985d-76717cb7443e	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+2780032d-e289-4e05-9fc4-84fc57b817eb	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+143fa37a-3aef-4578-b024-bfee175aae62	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+899c0c55-0afa-4f1d-9860-2f00a9c6666f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+ccc88c03-74b6-4eff-bd68-557774ccac82	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+18717c89-a70e-4c5f-97c6-8cc5daa05633	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+7c7c6731-8628-4e82-9a0d-6eb9b6a185af	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+3fa6bf13-846a-4ff3-8f6a-536a4e381f9b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+d8e0bc3a-761d-4ea8-9c50-d5b636dba214	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+1ba96a5e-7778-4a75-858b-fa8fd683f13f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+03ef653c-3b30-45eb-affd-3d87a6a868b7	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+8f6d9066-489c-4e11-a212-f800ebe61635	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+f4d8a22b-8661-4f06-978d-7b59f7427a86	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+1de0155d-a630-4a29-8f22-2264ac864c89	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+1b11667d-2f98-4041-aa6d-60a1eb84d9fa	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+8a1d403e-f6c9-428b-a4b0-b3f858d7c96d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+5e06510a-5fba-4797-8ac2-782056a0c0e3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+b74f5179-d817-459c-80b5-3f543f4fb6a3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+b81966a1-87e7-4197-8d38-5b7a2a7c8632	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+c9cce1fd-772d-4b3e-a10f-905f78b0fbb4	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+16d16a73-70e3-458f-8026-d643692b0e45	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+3fa379a4-eb1e-44b1-812b-90ade0274e89	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+af2456c8-526f-40d1-ab72-c5da1615b5bf	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+8a4a3e8f-047f-4910-8955-294ea711b7c3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+e3c987f0-35a3-4c1c-92c2-df41fc1aa690	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+b16ab8a5-b120-4b09-a32b-d09c54d822be	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+35b94f26-40ef-4711-a614-8267f8d38016	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+17651d80-ef81-439d-9eaf-f0c8009446b5	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+1d61134a-04f5-47bc-8655-34699886288e	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+a2f3aab8-3905-45b3-93bf-9fb88c63e36a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+a5ddfb93-3ef7-41e7-9c20-0d9dccbe1f13	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+cd24f973-9148-40b9-92e1-ba3e3df88417	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+52d30e4f-7f63-4c58-8044-63f7921ebe1b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+cba90af3-8e81-44d4-9616-f9ab46365953	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+d4d52fcc-6bb4-490e-ba51-caeefcdb629f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+9a31cf4d-2586-43ad-a7be-5000bc19fbb8	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+f6e5bf3d-d367-4a26-9fdd-137f4e717e22	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+474e813b-88d0-4749-95d9-591a681e7e73	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+bf48ebab-30a2-4fd3-b8cb-8d94e813e919	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+ad0c36e0-c3dc-4722-8779-092c80a223b4	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+09dfc6cc-85d8-4daf-9e7e-2c532f087401	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+f6bf61d7-b756-45ee-95be-0e8f0d46affc	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+680e8dc0-b8de-47d2-b169-f6a717c107ed	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+ab64fe7a-a2d9-4ad4-804a-bac7fa9e7eca	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+54cb9664-7634-4f94-b0ae-3e4bd9d52205	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+b95b831b-f8ea-4172-9f50-50caeea0de4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+1f9a23d0-ddb0-4be4-b258-9deb5bd88177	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+877a9459-295f-497a-91c1-ee04159af15a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+a851f808-6106-4df8-9f33-e5b26bd3d07d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+a483c533-e371-4cb3-a6cb-9f79cdc8d404	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+84f69dda-a1ce-4acd-9c8d-206d8e96f0ba	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+ebcd0ba8-ee4b-4b57-8c0d-f531c16fd121	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+164f617f-773d-48aa-8b67-2298524cfd4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+c1030ec8-634a-4624-a7ba-21f0a3de819d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+c066be89-6943-4887-84ed-d77edb56f1d2	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+22513d87-3b22-4357-babc-592ec2478ea9	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+ad013d85-518e-4f51-88fa-8d155c504b96	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+de1f2c65-3260-430c-8204-91bda5342313	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+8badd719-61fb-4bd5-87ae-48afb20f945d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+3e404ec2-f915-49e0-b324-a6e081e08f36	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+5953802d-deb3-4940-97f4-03aa9270980f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+3a8f8677-d633-4a4b-8cf9-9887fb625e4d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+2a7885b8-cc3b-450f-9fd7-9d54029279f2	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+bed3379b-7f82-4c67-b0eb-219eba708989	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+c7f0485a-916d-479a-9cda-5d4becf2db51	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+90a58727-3a3c-45b6-a78e-65103c2b91e0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+2357a6ee-0ab5-42a3-967b-af0f20ba876f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+27a4a939-441b-495e-8f74-c1af2b081663	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+5faa39de-0d18-4212-948b-f2cc08f9520f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+4537f841-b36a-4530-a685-b725a04100d0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+932af70a-5818-4734-a4c1-63cc312d6d8b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+0475f8bb-87f1-43ae-a2d8-421bbae9c8a2	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+2498f4e5-ace6-49ca-b9f5-62d7ae994832	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+63036c8f-49e1-4384-afc5-0a7d14df4ebe	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+f2602e9f-b229-4aaf-a63e-87e34af12d53	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+e2cc64f0-6ecc-4229-944c-f25dbf79d025	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+8fadf6ba-fb0e-4ea8-9232-42ee80ab96fc	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+284ce541-d3a0-4328-b343-09432ca12c2e	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+9df66a4b-1480-41a3-922e-820cf31a5c21	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+b5e724cf-41a8-4980-9222-75d2586f7dc2	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+b8d30bdc-151f-4b5f-aac6-55b65c8d7ba3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+6dbf41d2-9f56-44b9-8b46-93ab8bc4432d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+dc9fc3db-1287-4404-9888-beba35cc9293	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+c86bacb0-dbee-460a-a6b9-763f0690697c	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+36102efe-49bc-442c-b35d-2ba3f78fa694	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+1d093325-f372-477c-9d4e-fefaa8265b51	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+de767a5c-5284-41c9-954c-12647519cc5f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+22f43879-5de7-43a1-b658-2366383a8a27	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+4cdea610-9f5b-414c-bd3f-1703f757fb4b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+32a1706a-9476-4f40-9506-5368007df539	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+e20b42ee-1435-45ee-adc9-5e9b853728ca	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+6bd6f3d8-9cf0-4171-85dd-1f507e053bab	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+9d30f5d0-7391-41ea-9e24-d0f05477d7ca	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+bc08b4e2-9b32-401d-b88c-0ed0ca2109a8	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+6dececd6-29e0-405d-960e-c701dde91718	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+e187a8b9-75a9-4445-a061-c55c6961fe8b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+1a583925-ea1f-404c-95d2-775de7254ea0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+7488a2b4-d27c-4915-bdbf-6cdaf4fa1bed	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+a24d623b-055a-4fec-8c2b-47167953519d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+bfc1dcfb-0d3a-4606-9d69-de0b194bacbf	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+1c4c09f1-5788-4702-beb1-946065bb44da	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+bb5c9930-565c-4697-bd3c-70530c99b046	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+fbda0839-a4ed-4e80-845d-3a9cfcf130da	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+ced07b1e-d98a-4e77-a7d4-82bbd36f5450	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+8e07db6d-8b7c-4b59-a85b-80b90069f318	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+c9564979-c99d-46aa-9383-d814dbaec1f1	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+3420ac9e-e2a4-489b-9bc4-7184307ff81c	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+1cc509f7-f68e-4e3a-a7ea-e06f71cdff43	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+277dd5cb-b266-484a-a68d-c941c4575690	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+8b64c67e-049c-40d5-918b-0f90ea81a3b0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+265340e6-0a2d-4561-8cd1-15d5c2a61312	a68b1452-d6f1-4469-ab67-5e8f20d118f9	94967fc9-cdea-4689-9b00-7dcd0014691f
+05e6348f-9c03-4ae5-b487-8d14906fd5f1	a68b1452-d6f1-4469-ab67-5e8f20d118f9	1432f43a-a99a-4e6b-82bc-3a862292fa5f
+0ed5c37c-96a3-4d35-972d-02bcf8e65983	a68b1452-d6f1-4469-ab67-5e8f20d118f9	1432f43a-a99a-4e6b-82bc-3a862292fa5f
+6d9b34b4-fffb-44ec-9d56-27b0db78c902	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+a590cf4e-fd8f-4dd5-ba1f-0f6426a3a5c7	a68b1452-d6f1-4469-ab67-5e8f20d118f9	0a6f34e7-6173-4c93-8bfd-13dabce64bf1
+c93d69bb-fba9-44f5-b063-4e7c56614465	a68b1452-d6f1-4469-ab67-5e8f20d118f9	e29dbbe5-aa42-4c74-b7a1-39b97a7980d9
+8fcd2480-e71c-4320-8749-d66419e2aaa3	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+8451f284-e0e4-4459-92cb-9d724be31813	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+0f284f89-f915-4cc7-b39e-7ae01c2e99e1	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+d993b810-4d79-4895-8a67-d35ff5839acb	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+2b90bfb3-ed24-458e-bda6-2d80db8a7e47	a68b1452-d6f1-4469-ab67-5e8f20d118f9	abd98940-f6aa-4df4-b688-b2b53ccb2847
+5b71e5f3-0989-4b71-aaa7-8e0b1006c96d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+c261517f-43a2-4465-b372-ba1b763aa339	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+3d8ff715-16a5-4aed-b056-4836f0febeb0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+58fd2a64-e381-4a51-bb5b-06630a81f8ad	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+ddb3d22f-6508-40f0-9455-43313a02a0ac	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+059f6b3e-39c7-4e92-b9ee-05dcf99c93ab	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+0cad3e04-0eb7-440f-bbb7-e8399d664705	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+3782fc60-0af5-47f3-96c6-55e7a881f6fd	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+2e13ae1b-49c2-4474-b885-18bb068e2b43	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+3ad58206-b06a-4494-85ef-768afb1aefd2	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+2721b8f7-0ad1-42ae-a062-1509cd8d5c85	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+775c1cb2-e9f7-4741-afc2-bd9d87174a91	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+00754b0b-5931-4647-b7af-f72efe1808d8	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+2763e8d6-8173-4ecc-86f6-2be2beb40086	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+62c64a65-8b03-4ab6-a716-204f4de97f24	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+90720c68-04f1-44fe-9aa4-8feb8ac45448	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+7965d117-4136-4e1c-a0a5-7216b8bf678b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+d04429f8-4b40-412d-a741-0122bf2b7833	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+32848062-83d4-40dd-a560-df74b0c26273	a68b1452-d6f1-4469-ab67-5e8f20d118f9	2c83d72c-5dc0-4531-86d6-4b047f4f47b4
+311eaa3b-509e-4212-a24d-dd95798246d7	a68b1452-d6f1-4469-ab67-5e8f20d118f9	9d406001-cfc4-4f0c-9a18-507f86399a8b
+b44d97f4-aa80-48f1-957e-1790bf5aa512	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+de33881f-70a8-4f25-bee3-3f7058fd0329	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+56bcb186-f662-4e30-86d5-df02332925ec	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+2f2c1123-d4a3-4ffe-974d-098718e23089	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+79742ebb-0cba-4fcb-acb5-86529faa08ca	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4c1897a4-3682-4203-b15d-acab2f25ec4a
+de6d2e72-1b98-48fb-b567-0a67415b3e64	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+61172702-472d-45ce-b70e-19baefc0f115	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+e40dbc39-bf3e-47b8-831a-ed27a977771a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+38a9f9a4-9d62-4134-8080-992fa79da3dd	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+a9dea208-fd8e-4975-b497-0bccd2eaec9d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+b8875d07-ab1e-4dba-a30d-bb41d3900f6f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+4d4d9575-f465-4b34-890d-5ba10797f233	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+c7f38989-48ee-4b20-adcc-73896cbad4bd	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+02733f48-eae1-4641-ab84-8985bec2c5d6	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+b1bec626-d880-4385-99c4-d6b79fb6ac8d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+218e8d9d-027c-48d6-9d5e-23799da52b1f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+e3bae702-a0a6-4013-b0b7-a8f92529d90f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+95be03c2-5560-4c52-a38a-ad680e798769	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+1f3d23b2-d38e-4f65-918f-756e2ea9f2c0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+ea453ad9-f54c-40d2-9420-7b036b92797a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+482a5324-4264-4572-949d-c6b9cd4f9cac	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+56961b3d-89a1-4301-8158-cf0db631e213	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+9e691517-1fdd-4c22-809a-e10cbcba4c1d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+c29a4471-3eb1-4160-9d6c-cfc58312701f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+2cdfdcd3-1b74-4eb8-8ca7-b21879ddece4	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+56118916-1f31-4ac1-9510-cfe47eca44cc	a68b1452-d6f1-4469-ab67-5e8f20d118f9	0a6f34e7-6173-4c93-8bfd-13dabce64bf1
+271f6daf-d111-4b6a-9fcf-36da0a93a29d	a68b1452-d6f1-4469-ab67-5e8f20d118f9	f077ecb1-0447-4eaf-bde2-9b512a36d73e
+551874bc-ae3d-4f63-adbb-7230cb774119	a68b1452-d6f1-4469-ab67-5e8f20d118f9	f077ecb1-0447-4eaf-bde2-9b512a36d73e
+42a1ed3d-2631-400d-9d35-307beb6a6a81	a68b1452-d6f1-4469-ab67-5e8f20d118f9	ec97737d-6ffe-4b0b-9ac4-95a8f790cec8
+2668e88c-a6c9-4683-aa68-118ec547136b	a68b1452-d6f1-4469-ab67-5e8f20d118f9	ec97737d-6ffe-4b0b-9ac4-95a8f790cec8
+4c05d4d6-d6c4-43fc-be56-9795af99b1d0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	5f1a331c-41c7-43a2-a404-4fcb729e9049
+498eef94-1670-45d1-9a44-9c2f5cf06fb2	a68b1452-d6f1-4469-ab67-5e8f20d118f9	5f1a331c-41c7-43a2-a404-4fcb729e9049
+4ef1c5cf-9e1b-4506-9cd3-5101cca29165	a68b1452-d6f1-4469-ab67-5e8f20d118f9	5f1a331c-41c7-43a2-a404-4fcb729e9049
+2a2cd495-f038-4f6e-bd8c-41adf0cbf6ba	a68b1452-d6f1-4469-ab67-5e8f20d118f9	5f1a331c-41c7-43a2-a404-4fcb729e9049
+a861b4fa-8d7e-49c8-9c71-6f76653cb5a1	a68b1452-d6f1-4469-ab67-5e8f20d118f9	9d406001-cfc4-4f0c-9a18-507f86399a8b
+aa530a35-95b2-4acd-87f8-e8a7d5dbfb08	a68b1452-d6f1-4469-ab67-5e8f20d118f9	d1a71f78-9da9-4243-a19f-72fb3b529976
+29e64e24-2a9b-42f2-a364-8b4b47447013	a68b1452-d6f1-4469-ab67-5e8f20d118f9	ec97737d-6ffe-4b0b-9ac4-95a8f790cec8
+72e03e7f-761f-493a-a8a4-97f9ad85b163	a68b1452-d6f1-4469-ab67-5e8f20d118f9	f077ecb1-0447-4eaf-bde2-9b512a36d73e
+b4921edc-f892-4b57-876b-e2a9f2275717	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+094edc33-ac66-41f8-ab87-1fefd2c54678	a68b1452-d6f1-4469-ab67-5e8f20d118f9	5f1a331c-41c7-43a2-a404-4fcb729e9049
+035b9836-a543-48ea-bbc0-26d94667dc02	a68b1452-d6f1-4469-ab67-5e8f20d118f9	94967fc9-cdea-4689-9b00-7dcd0014691f
+e9dd05e2-11f3-4c33-b3cd-2021cc147e3c	a68b1452-d6f1-4469-ab67-5e8f20d118f9	f077ecb1-0447-4eaf-bde2-9b512a36d73e
+b391b867-3462-4012-8f84-a8beaa6c25e0	a68b1452-d6f1-4469-ab67-5e8f20d118f9	8be6464e-efd1-4bcd-8ba6-02f282e85275
+d82c7d25-9b80-42c6-8cde-adfb71e810f7	a68b1452-d6f1-4469-ab67-5e8f20d118f9	f077ecb1-0447-4eaf-bde2-9b512a36d73e
+72fac854-c3df-4448-80aa-11c5e2f56787	a68b1452-d6f1-4469-ab67-5e8f20d118f9	15632316-1aab-4df8-8897-676b26ebb7e3
+f745d5b3-371d-4ccd-b4f3-e5a3a6dc8029	a68b1452-d6f1-4469-ab67-5e8f20d118f9	f077ecb1-0447-4eaf-bde2-9b512a36d73e
+\.
+
+
+--
+-- TOC entry 3095 (class 0 OID 32831)
+-- Dependencies: 208
+-- Data for Name: notification; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.notification (not_id, user_id, description, is_view, date) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3098 (class 0 OID 41021)
+-- Dependencies: 211
+-- Data for Name: ratingUser; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."ratingUser" (rating_id, film_id, user_id, rating) FROM stdin;
+b7b8413d-3f9b-49a2-afcb-416c355d8445	3e3750e4-34bb-4995-850e-b7bbcc2ab601	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4
+9a86bdd2-033a-4d22-9370-622014222146	1432f43a-a99a-4e6b-82bc-3a862292fa5f	a68b1452-d6f1-4469-ab67-5e8f20d118f9	4.5
+cb3a5332-f477-41a5-b71c-3fe06b8ae15f	8be6464e-efd1-4bcd-8ba6-02f282e85275	a68b1452-d6f1-4469-ab67-5e8f20d118f9	3
+45e39de3-3b6d-44bb-b927-383f31be33a8	4c1897a4-3682-4203-b15d-acab2f25ec4a	a68b1452-d6f1-4469-ab67-5e8f20d118f9	3
+967f8d25-7514-4001-9d72-d20be326f9fa	5f1a331c-41c7-43a2-a404-4fcb729e9049	a68b1452-d6f1-4469-ab67-5e8f20d118f9	5
+\.
+
+
+--
+-- TOC entry 3087 (class 0 OID 16384)
+-- Dependencies: 200
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.users (user_id, name, surname, login, email, password, "dataBirthday", is_author, path_to_image, is_active) FROM stdin;
+6c668797-4e66-4056-b465-bee9408e12ec	Антон	Андрев	maarss	mgvardis@gmail.com	$2b$12$G27wL0Ii7y4.mN9PzOu1Ou761h9XaADwzpLsf0l1jvckBfHh9hHwi	2000-07-08	f	 	t
+a68b1452-d6f1-4469-ab67-5e8f20d118f9	d	Беляев	mars	forworkkul2000pi@yandex.ru	$2b$12$seXK.W/hc2SAmjN7x3UR1.ULK6aYG1SSq9zQzNRfMY9DHOGYRPloW	2000-07-08	t	 	t
+\.
+
+
+--
+-- TOC entry 2938 (class 2606 OID 16436)
+-- Name: Comment Comment_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Comment"
+    ADD CONSTRAINT "Comment_pkey" PRIMARY KEY (comment_id);
+
+
+--
+-- TOC entry 2954 (class 2606 OID 41020)
+-- Name: Fest_AD Fest_AD_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Fest_AD"
+    ADD CONSTRAINT "Fest_AD_pkey" PRIMARY KEY (fest_id);
+
+
+--
+-- TOC entry 2936 (class 2606 OID 16428)
+-- Name: Film Film_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Film"
+    ADD CONSTRAINT "Film_pkey" PRIMARY KEY (film_id);
+
+
+--
+-- TOC entry 2944 (class 2606 OID 24683)
+-- Name: News_Ad News_Ad_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."News_Ad"
+    ADD CONSTRAINT "News_Ad_pkey" PRIMARY KEY (news_id);
+
+
+--
+-- TOC entry 2942 (class 2606 OID 24675)
+-- Name: authorAbout authorAbout_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."authorAbout"
+    ADD CONSTRAINT "authorAbout_pkey" PRIMARY KEY (user_id);
+
+
+--
+-- TOC entry 2940 (class 2606 OID 24667)
+-- Name: author author_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.author
+    ADD CONSTRAINT author_pkey PRIMARY KEY (author_id);
+
+
+--
+-- TOC entry 2952 (class 2606 OID 32840)
+-- Name: bookmarkUser bookmarkUser_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."bookmarkUser"
+    ADD CONSTRAINT "bookmarkUser_pkey" PRIMARY KEY (mark_id);
+
+
+--
+-- TOC entry 2946 (class 2606 OID 32825)
+-- Name: countViewFilm countViewFilm_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."countViewFilm"
+    ADD CONSTRAINT "countViewFilm_pkey" PRIMARY KEY (hist_view_id);
+
+
+--
+-- TOC entry 2948 (class 2606 OID 32830)
+-- Name: historyViewUser historyViewUser_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."historyViewUser"
+    ADD CONSTRAINT "historyViewUser_pkey" PRIMARY KEY (hist_id);
+
+
+--
+-- TOC entry 2950 (class 2606 OID 32835)
+-- Name: notification notification_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.notification
+    ADD CONSTRAINT notification_pkey PRIMARY KEY (not_id);
+
+
+--
+-- TOC entry 2956 (class 2606 OID 41028)
+-- Name: ratingUser ratingUser_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."ratingUser"
+    ADD CONSTRAINT "ratingUser_pkey" PRIMARY KEY (rating_id);
+
+
+--
+-- TOC entry 2934 (class 2606 OID 16391)
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (user_id);
+
+
+-- Completed on 2023-07-23 21:35:20 UTC
+
+--
+-- PostgreSQL database dump complete
+--
+

@@ -1,0 +1,117 @@
+{% extends "templateBaseMini.html" %}
+
+<!--- Дополнительные ссылки --->
+{% block link %} <link rel="stylesheet" href="{{ url_for('static', path='/css/flickityMini.css') }}">{% endblock %}
+
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<h5 class="pb-3" style="text-align: center;">ЛИДЕРЫ</h5>
+<div class="p-2 gallery js-flickity " style="position: relative; width: 90%; margin: 0 auto;" data-flickity='{ "initialIndex": ".is-initial-select","groupCells": 1,"pageDots": false,"prevNextButtons": false }' >
+        {% for filmBest in best_film %}
+            <div class="oneNews gallery-cell"  style="position: relative;">
+                <a href="/film/p/watch/{{ filmBest[0].film_id }}"><img src="../../Img/tmpImgFilm/{{ filmBest[0].film_id }}.png " style="border-radius: 5% !important;" class="img-fluid rounded img-shadow" alt=""></a>
+                <div class="ml-1 mt-2 ">{{ filmBest[0].name }}</div>
+            </div>
+        {% endfor %}
+</div>
+
+<h5 class="pb-3" style="text-align: center;">НОВИНКИ</h5>
+<div class="p-2 gallery js-flickity " style="position: relative; width: 90%; margin: 0 auto;" data-flickity='{ "initialIndex": ".is-initial-select","groupCells": 1,"pageDots": false,"prevNextButtons": false }' >
+        {% for filmNews in new_film %}
+            <div class="oneNews gallery-cell"  style="position: relative;">
+                <a href="/film/p/watch/{{ filmNews[0].film_id }}"><img src="../../Img/tmpImgFilm/{{ filmNews[0].film_id }}.png " style="border-radius: 5% !important;" class="img-fluid rounded img-shadow" alt=""></a>
+                <div class="ml-1 mt-2 ">{{ filmNews[0].name }}</div>
+            </div>
+        {% endfor %}
+</div>
+<script src="{{ url_for('static', path='/script/flickity.js') }}"></script>
+<div class="container mt-2 pb-5">
+    <h5 class="pb-3" style="text-align: center;">ЖАНРЫ</h5>
+    <div class="row">
+        <div class="col" style="">
+            <a href="/main/COMEDY/p"><img src="{{ url_for('static', path='/imgTypeCinema/comedy.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="col" style="">
+            <a href="/main/MELODRAMMA/p"><img src="{{ url_for('static', path='/imgTypeCinema/melodramas.png') }}" class="img-fluid" alt=""></a>
+        </div>
+                <div class="w-100"></div>
+        <div class="col" style="">
+            <a href="/main/HORROR/p"><img src="{{ url_for('static', path='/imgTypeCinema/horror.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="col" style="">
+            <a href="/main/DRAMA/p"><img src="{{ url_for('static', path='/imgTypeCinema/drams.png') }}" class="img-fluid" alt=""></a>
+        </div>
+                <div class="w-100"></div>
+        <div class="col" style="">
+            <a href="/main/WEB/p"><img src="{{ url_for('static', path='/imgTypeCinema/web.png') }}" class="img-fluid" alt=""></a>
+        </div>
+
+        <div class="col" style="">
+            <a href="/main/STUDY/p"><img src="{{ url_for('static', path='/imgTypeCinema/stud.png') }}" class="img-fluid" alt=""></a>
+        </div>
+                <div class="w-100"></div>
+        <div class="col" style="">
+            <a href="/main/TRILLER/p"><img src="{{ url_for('static', path='/imgTypeCinema/thrillers.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="col" style="">
+            <a href="/main/FANTASY/p"><img src="{{ url_for('static', path='/imgTypeCinema/fantasy.png') }}" class="img-fluid" alt=""></a>
+        </div>
+                <div class="w-100"></div>
+        <div class="col" style="">
+            <a href="/main/MULT/p"><img src="{{ url_for('static', path='/imgTypeCinema/cartoon.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="col" style="">
+            <a href="/main/DOC/p"><img src="{{ url_for('static', path='/imgTypeCinema/doc.png') }}" class="img-fluid" alt=""></a>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+<script>
+
+
+</script>
+{% endblock %}

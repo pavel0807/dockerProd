@@ -1,0 +1,78 @@
+<!-- Комментарий  -->
+                    <div class="comment p-3" style="width: 100%; border-radius:15px;background-color: rgb(21,31,58);border:0px;position: relative">
+                        <div class="pt-1 pl-2 text-muted">Режиссер</div>
+                        <div class="d-flex">
+                            <div class="pt-2 pl-1">Уэс Андерсон</div>
+                            <div class="pt-2 pl-3 text-muted">4 дня назад</div>
+                        </div>
+
+                        <div class="pb-4 pl-4 pt-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget turpis massa. Phasellus pharetra felis eget elementum accumsan. Phasellus ligula libero, vulputate a pretium eget, dignissim sagittis ex. Aenean consectetur vulputate sollicitudin. Quisque id ligula et odio tempor imperdiet non non felis. Aenean ex leo, porttitor vel ante venenatis, mattis tincidunt diam. Donec tempor nunc ut mi laoreet cursus. Suspendisse faucibus neque ac turpis ullamcorper molestie. Duis congue ut tellus non dapibus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; </div>
+                        <button type="submit" class="btn" style="position: absolute;color:gray; border:0;bottom: 4%;right: 2%;z-index: 2; background-color: rgb(2,12,37);" onclick="answerByComment('321312-312312','Анна Шиковец')">Ответить</button>
+                    </div>
+
+                    <!-- Ответ на комментарий  -->
+                    <div class="comment-second ml-5 mt-3 w-100 d-flex mb-4">
+                        <div class="">
+                            <img src="{{ url_for('static', path='/film_show/link.png') }}" alt="" style="width: 50px;height: 50px;">
+                        </div>
+                        <div class="p-4 mt-3" style="width: 100%; border-radius:15px;background-color: rgb(21,31,58);border:0px;position: relative">
+                            <div class="pt-1 pl-2 text-muted">Зритель</div>
+                            <div class="d-flex">
+                                <div class="pt-2 pl-1">Аня Шиковец</div>
+                                <div class="pt-2 pl-3 text-muted">6 дня назад</div>
+                            </div>
+
+                            <div class="pb-4 pl-4 pt-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget turpis massa. Phasellus pharetra felis eget elementum accumsan. Phasellus ligula libero, vulputate a pretium eget, dignissim sagittis ex. Aenean consectetur vulputate sollicitudin. Quisque id ligula et odio tempor imperdiet non non felis. Aenean ex leo, porttitor vel ante venenatis, mattis tincidunt diam. Donec tempor nunc ut mi laoreet cursus. Suspendisse faucibus neque ac turpis ullamcorper molestie. Duis congue ut tellus non dapibus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; </div>
+                            <button type="submit" class="btn" style="position: absolute;color:gray; border:0;bottom: 4%;right: 2%;z-index: 2; background-color: rgb(2,12,37);" onclick="answerByComment('321312-312312','Анна Шиковец')">Ответить</button>
+
+                        </div>
+                    </div>
+
+                    <!-- Кнопка открытия комментариев  -->
+                    <div class="ml-5 w-100 pl-5 mt-4 mb-4" id="showContent-1" style="display: flex;border:0px;">
+                        <img src="{{ url_for('static', path='/film_show/sort.png') }}" alt="">
+                        <div id="ShowHiddenComment-1" onclick="showComment('1')">Показать все ответы</div>
+                    </div>
+
+                    <!-- Скрытые комментарии  -->
+                    <div id="hiddenComment-1" style="display: none">
+                        <!-- Ответ на комментарий  -->
+                        <div class="comment-second ml-5 mt-3 w-100 d-flex mb-4">
+                            <div class="">
+                                <img src="{{ url_for('static', path='/film_show/link.png') }}" alt="" style="width: 50px;height: 50px;">
+                            </div>
+                            <div class="p-4 mt-3" style="width: 100%; border-radius:15px;background-color: rgb(21,31,58);border:0px;position: relative">
+                                <div class="pt-1 pl-2 text-muted">Зритель</div>
+                                <div class="d-flex">
+                                    <div class="pt-2 pl-1">Аня Шиковец</div>
+                                    <div class="pt-2 pl-3 text-muted">6 дня назад</div>
+                                </div>
+
+                                <div class="pb-4 pl-4 pt-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget turpis massa. Phasellus pharetra felis eget elementum accumsan. Phasellus ligula libero, vulputate a pretium eget, dignissim sagittis ex. Aenean consectetur vulputate sollicitudin. Quisque id ligula et odio tempor imperdiet non non felis. Aenean ex leo, porttitor vel ante venenatis, mattis tincidunt diam. Donec tempor nunc ut mi laoreet cursus. Suspendisse faucibus neque ac turpis ullamcorper molestie. Duis congue ut tellus non dapibus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; </div>
+                            <button type="submit" class="btn" style="position: absolute;color:gray; border:0;bottom: 4%;right: 2%;z-index: 2; background-color: rgb(2,12,37);" onclick="answerByComment('321312-312312','Анна Шиковец')">Ответить</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+<!-- Комментарий  -->
+                    <div class="comment p-3 mb-4" style="width: 100%; border-radius:15px;background-color: rgb(21,31,58);border:0px;position: relative">
+                        <div class="pt-1 pl-2 text-muted">Режиссер</div>
+                        <div class="d-flex">
+                            <div class="pt-2 pl-1">Уэс Андерсон</div>
+                            <div class="pt-2 pl-3 text-muted">4 дня назад</div>
+                        </div>
+
+                        <div class="pb-4 pl-4 pt-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget turpis massa. Phasellus pharetra felis eget elementum accumsan. Phasellus ligula libero, vulputate a pretium eget, dignissim sagittis ex. Aenean consectetur vulputate sollicitudin. Quisque id ligula et odio tempor imperdiet non non felis. Aenean ex leo, porttitor vel ante venenatis, mattis tincidunt diam. Donec tempor nunc ut mi laoreet cursus. Suspendisse faucibus neque ac turpis ullamcorper molestie. Duis congue ut tellus non dapibus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; </div>
+                    </div>
+                    <!-- Комментарий  -->
+                    <div class="comment p-3 mb-4" style="width: 100%; border-radius:15px;background-color: rgb(21,31,58);border:0px;position: relative">
+                        <div class="pt-1 pl-2 text-muted">Режиссер</div>
+                        <div class="d-flex">
+                            <div class="pt-2 pl-1">Уэс Андерсон</div>
+                            <div class="pt-2 pl-3 text-muted">4 дня назад</div>
+                        </div>
+
+                        <div class="pb-4 pl-4 pt-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget turpis massa. Phasellus pharetra felis eget elementum accumsan. Phasellus ligula libero, vulputate a pretium eget, dignissim sagittis ex. Aenean consectetur vulputate sollicitudin. Quisque id ligula et odio tempor imperdiet non non felis. Aenean ex leo, porttitor vel ante venenatis, mattis tincidunt diam. Donec tempor nunc ut mi laoreet cursus. Suspendisse faucibus neque ac turpis ullamcorper molestie. Duis congue ut tellus non dapibus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; </div>
+                    </div>

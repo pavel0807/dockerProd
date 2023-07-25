@@ -1,0 +1,171 @@
+{% extends "templateBase.html" %}
+{% block link %}   <link rel="stylesheet" href="{{ url_for('static', path='/css/change_user.css') }}">  {% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+
+<div class="container mt-5 mb-5 border w-85 " style="background-color: rgb(232,232,232);border-radius: 10px;">
+    <div class="header pl-5 pr-5 pt-5" style="color:black;text-align: center;">
+        <h5> Добавить новость </h5>
+    </div>
+    <div class="row w-100 p-3" style="color:black;">
+        <div class="contant w-100" style="margin: 0 30%;">
+            <div class="col justify-content-center" style="margin: 0 auto;">
+                    <div class="custom-image-add">
+                        <div class="custom__image-container" style="text-align: center;" >
+                            <label id="add-img-label" for="add-single-img"><img src="{{ url_for('static', path='/film_show/img_add.png') }}" style="border-radius: 500px; min-width: 50px; max-width: 200px;min-height: 50px; max-height: 200px; "   /></label>
+                            <input type="file" id="add-single-img" accept="image/jpeg" />
+                            </div>
+                        <input type="file" id="image-input" name="photos" accept="image/jpeg"/>
+                    </div>
+                    <h5 class="px-auto" style="text-align: center; ">Добавьте обложку </h5>
+            </div>
+            <script src="../script/addPhoto.js"></script>
+            <div class="w-100"></div>
+            <div class="col d-flex flex-column justify-content-center">
+                <div>
+                    <select name="year" id="type" required="required" size="1" style="width: 100%; border-radius: 10px;background-color: rgb(217,217,217);height: 200%;">
+                        <option value=""> Тип новости </option>
+                        <option value="news">Новость</option>
+                        <option value="ad">Обьявление</option>
+                        <option value="news_fest">Новости фестивалей</option>
+                        <option value="winner_fest">Победители</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col pt-3">
+                <h5>Название новости</h5>
+                <input type="text" id="name" name="name" style="width: 100%;border-radius: 10px;background-color: rgb(217,217,217);">
+            </div>
+            <div class="w-100"></div>
+            <div class="col pt-3">
+                <h5>Новость</h5>
+                <textarea placeholder="Введите текст новости" name="message" id="news" style="height: 30%;width: 50%;"> </textarea>
+            </div>
+        </div>
+    </div>
+    <div class="back  p-1" style="color:black;margin: 0 30%;text-align: center; ">
+        <button onclick="send()"  style="background-color: rgb(3,13,40);color:white;font-size: 20px;padding: 15px 20px;border-radius:10px">
+            Опубликовать
+        </button>
+    </div>
+</div>
+
+
+
+<script>
+        const errorDiv = document.getElementById('error');
+const imgInputHelper = document.getElementById("add-single-img");
+    const imgInputHelperLabel = document.getElementById("add-img-label");
+    const imgContainer = document.querySelector(".custom__image-container");
+    const imgFiles = [];
+
+    const addImgHandler = () => {
+        const file = imgInputHelper.files[0];
+        if (!file) return;
+        // Generate img preview
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            const newImg = document.createElement("img");
+            newImg.src = reader.result;
+            newImg.style = "width: 200px;height: 200px;";
+            imgContainer.insertBefore(newImg, imgInputHelperLabel);
+        };
+        // Store img file
+        imgFiles.push(file);
+        // Reset image input
+        imgInputHelperLabel.style.display = "none";
+        return;
+    };
+    imgInputHelper.addEventListener("change", addImgHandler);
+    async function send(){
+        console.log(imgFiles.length);
+
+        let formData = new FormData();
+                for (const image of imgFiles) {
+                formData.append('imagess', image);
+                }
+
+            // получаем введеное в поле имя и возраст
+            const name = document.getElementById("name").value;
+            const type = document.getElementById("type").value;
+            const news = document.getElementById("news").value;
+
+            data =  JSON.stringify({
+                name: name,
+                type: type,
+                news:news
+            })
+
+            formData.append('info', data);
+            const response = await fetch('/news/add', {
+                method: 'POST',
+                body: formData,
+            });
+            if (response.ok) {
+                document.location.href = document.location.href.replace(document.location.pathname,'/main/')
+            }
+            else {
+                if (response.status === 511) {
+                    document.location.href = document.location.href.replace(document.location.pathname,"/user/activeEmail");
+                }
+                if (response.status === 512) {
+                    errorDiv.style.display = "block";
+                    errorDiv.textContent = "Если вы хотите поменять пароль, то введите новый пароль";
+                }
+                if (response.status === 513) {
+                    errorDiv.style.display = "block";
+                    errorDiv.textContent = "Если вы хотите поменять пароль, то введите ваш текущий пароль";
+                }
+                if (response.status === 514) {
+                    errorDiv.style.display = "block";
+                    errorDiv.textContent = "Вы ввели неправильный текущий пароль";
+                }
+            }
+    }
+</script>
+{% endblock %}
+

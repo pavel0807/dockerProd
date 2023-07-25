@@ -1,0 +1,247 @@
+{% extends "templateBase.html" %}
+{% block link %}   {% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+
+<div class="container mt-5 mb-5 border w-85 " style="background-color: rgb(232,232,232);border-radius: 10px;">
+    <div class="header pl-5 pr-5 pt-5 d-flex justify-content-between " style="color:black;">
+        <h3> Регистрация </h3>
+        <h3>Уже есть аккаунт? <a href="/user/login">Войти</a></h3>
+    </div>
+        <div class="row  p-3" style="color:black;">
+            <div class="contant" style="margin: 0 30%;">
+                <div class="col pt-3">
+                    <h5>Ваше имя</h5>
+                    <input type="text" id="name" name="name" style="width: 200%;border-radius: 10px;background-color: rgb(217,217,217);">
+                </div>
+                <div class="w-100"></div>
+                <div class="col pt-3">
+                    <h5>Ваша фамилия</h5>
+                    <input type="text" id="surname" name="surname" style="width: 200%;border-radius: 10px;background-color: rgb(217,217,217);">
+                </div>
+                <div class="w-100"></div>
+                <div class="col pt-3">
+                    <h5> Имя пользователя</h5>
+                    <input type="text" id="login" name="login" style="width: 200%;border-radius: 10px;background-color: rgb(217,217,217);">
+                </div>
+                <div class="w-100"></div>
+                <div class="col pt-3">
+                    <h5> Дата рождения</h5>
+                    <input type="date" id="dataBirthday" name="dataBirthday" style="width: 200%;border-radius: 10px;background-color: rgb(217,217,217);">
+                </div>
+                <div class="w-100"></div>
+                <div class="col pt-3">
+                    <h5>Почта</h5>
+                    <input type="email" id="email"  name="email" style="width: 200%;border-radius: 10px;background-color: rgb(217,217,217);">
+                </div>
+                <div class="col pt-3">
+                    <h5>Пароль</h5>
+                    <input type="password" id="password"  name="password" style="width: 200%;border-radius: 10px;background-color: rgb(217,217,217);">
+                </div>
+                <div class="w-100"></div>
+            </div>
+        </div>
+        <div class="error" id="error" style="color:red;margin: auto;text-align: center; display: none">
+            Error: Неверное значение пароля
+        </div>
+        <div class="back  p-1" style="color:black;margin: 0 30%;text-align: center; ">
+            <h6>Нажимая кнопку зарегистрироваться, я принимаю условия</h6>
+            <h6><a href="https://google.com">Пользовательского соглашения</a></h6>
+            <button onclick="send()" id="bt" style="background-color: rgb(3,13,40);color:white;font-size: 20px;padding: 15px 20px;border-radius:10px">
+                Зарегистрироваться
+            </button>
+        </div>
+</div>
+<script>
+    const EMAIL_REGEXP = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/iu;
+    const LOGIN_REGEXP = /^[a-zA-Z0-9\-]+$/iu;
+    const NAME_REGEXP = /^[а-яА-Я\-]+$/iu;
+    const PASSWORD_REGEX = /^.{4,}$/iu;
+
+    const errorDiv = document.getElementById('error');
+
+    const inputEmail = document.getElementById('email');
+    const inputLogin = document.getElementById('login');
+    const inputName = document.getElementById('name');
+    const inputSurame = document.getElementById('surname');
+    const inputPassword = document.getElementById('password');
+    const inputDate = document.getElementById("dataBirthday")
+
+
+    inputDate.max = new Date().toISOString().split("T")[0];
+    function isEmailValid(value) {
+        return EMAIL_REGEXP.test(value);
+    }
+    function isPasswordValid(value) {
+        return PASSWORD_REGEX.test(value);
+    }
+    function isLoginValid(value) {
+        return LOGIN_REGEXP.test(value);
+    }
+    function isNameValid(value) {
+        return NAME_REGEXP.test(value);
+    }
+    function isSurnameValid(value) {
+        return NAME_REGEXP.test(value);
+    }
+    function onInputEmail() {
+        if (isEmailValid(inputEmail.value)) {
+            inputEmail.style.borderColor = 'green';
+            errorDiv.style.display = "none";
+            bad = false;
+        } else {
+            inputEmail.style.borderColor = 'red';
+            bad = true;
+        }
+    }
+    function onInputPassword() {
+        if (isPasswordValid(inputPassword.value)) {
+            inputPassword.style.borderColor = 'green';
+            errorDiv.style.display = "none";
+            bad = false;
+        } else {
+            inputPassword.style.borderColor = 'red';
+            errorDiv.style.display = "block";
+            errorDiv.textContent = "Пароль должен содержать больше 6 символов";
+            bad = true;
+        }
+    }
+    function onInputName() {
+        if (isNameValid(inputName.value)) {
+            inputName.style.borderColor = 'green';
+            errorDiv.style.display = "none";
+            bad = false;
+        } else {
+            inputName.style.borderColor = 'red';
+            errorDiv.style.display = "block";
+            errorDiv.textContent = "Имя должно состоять только из кирилицы";
+            bad = true;
+        }
+    }
+    function onInputSurname() {
+        if (isSurnameValid(inputSurame.value)) {
+            inputSurame.style.borderColor = 'green';
+            errorDiv.style.display = "none";
+            bad = false;
+        } else {
+            inputSurame.style.borderColor = 'red';
+            errorDiv.style.display = "block";
+            errorDiv.textContent = "Фамилия должна состоять только из кирилицы";
+            bad = true;
+        }
+    }
+    function onInputLogin() {
+        if (isLoginValid(inputLogin.value)) {
+            inputLogin.style.borderColor = 'green';
+            errorDiv.style.display = "none";
+            bad = false;
+        } else {
+            inputLogin.style.borderColor = 'red';
+            errorDiv.style.display = "block";
+            errorDiv.textContent = "Имя пользователя может содержать только латиницу и цифры";
+            bad = true;
+        }
+    }
+
+
+    inputName.addEventListener('input', onInputName);
+    inputPassword.addEventListener('input', onInputPassword);
+    inputSurame.addEventListener('input', onInputSurname);
+    inputEmail.addEventListener('input', onInputEmail);
+    inputLogin.addEventListener('input', onInputLogin);
+
+
+    async function checkForm(){
+        if (isEmailValid(inputEmail.value) && isLoginValid(inputLogin.value) && isNameValid(inputName.value) && isSurnameValid(inputSurame.value) && isPasswordValid(inputPassword.value) && isNaN(inputDate)){
+            console.log("ok");
+            return true;
+        }
+        console.log("bad");
+        return false;
+    }
+
+
+    async function send(){
+        // получаем введеное в поле имя и возраст
+        const name = document.getElementById("name").value;
+        const surname = document.getElementById("surname").value;
+        const login = document.getElementById("login").value;
+        const dataBirthday = document.getElementById("dataBirthday").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+
+        // отправляем запрос
+        const response = await fetch("/user/registration", {
+            method: "POST",
+            headers: {"Accept": "application/json", "Content-Type": "application/json"},
+            body: JSON.stringify({
+                name: name,
+                surname: surname,
+                login: login,
+                email: email,
+                password: password,
+                dataBirthday: dataBirthday,
+                is_author: false,
+                path_to_image: " "
+            })
+        });
+        if (response.ok) {
+            document.location.href = document.location.href.replace("registration","activeEmail");
+        } else {
+            if (response.status === 512) {
+                errorDiv.style.display = "block";
+                errorDiv.textContent = "Такая почта уже существует";
+            }
+            if (response.status === 513) {
+                errorDiv.style.display = "block";
+                errorDiv.textContent = "Такое имя пользователя уже существует";
+            }
+        }
+    }
+</script>
+{% endblock %}
+

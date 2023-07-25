@@ -1,0 +1,110 @@
+{% extends "templateBaseMini.html" %}
+{% block link %}     {% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+
+<div class="container w-85 " style="background-color: rgb(232,232,232);border-radius: 10px; width: 90%;">
+    <div class="header  pt-5  justify-content-between " style="color:black; margin: 0 auto;text-align: center;">
+        <h5> ВХОД </h5>
+        <h5s>Еще нет аккаунта? <a href='/user/p/registration'>Регистрация </a> </h5s>
+    </div>
+    <div class="row  p-1" style="color:black; width: 100%;margin: 0 auto;">
+        <div class="contant" style="margin: 0 auto;">
+            <div class="col pt-3">
+                <h5>Телефон или логин</h5>
+                <input type="text" id="login" name="login" style="width: 100%;border-radius: 10px;background-color: rgb(217,217,217);">
+            </div>
+            <div class="w-100"></div>
+            <div class="col pt-3">
+                <h5>Пароль</h5>
+                <input type="password" id="password" name="password" style="width: 100%;border-radius: 10px;background-color: rgb(217,217,217);">
+            </div>
+            <div class="w-100"></div>
+        </div>
+    </div>
+        <div class="error" id="error" style="color:red;margin: auto;text-align: center; display: none">
+            Error: Неверное значение пароля
+        </div>
+        <div class="back  p-1" style="color:black;margin: 0 30%;text-align: center; ">
+            <h6>Забыли пароль?</h6>
+            <button onclick="send()"  style="background-color: rgb(3,13,40);color:white;font-size: 20px;padding: 15px 20px;border-radius:10px">
+                Войти
+            </button>
+        </div>
+</div>
+<script>
+    async function send(){
+        // получаем введеное в поле имя и возраст
+        const login = document.getElementById("login").value;
+        const password = document.getElementById("password").value;
+
+        const errorDiv = document.getElementById('error');
+        let formData = new FormData();
+
+        formData.append('username', login);
+        formData.append('password', password);
+
+
+        const response = await fetch('/user/login', {
+                method: 'POST',
+                body: formData,
+            });
+        if (response.ok){
+            document.location.href = document.location.href.replace(document.location.pathname,'/main/')
+        }
+        else {
+            if (response.status === 511) {
+                document.location.href = document.location.href.replace(document.location.pathname,"/user/activeEmail");
+            }
+            if (response.status === 512) {
+                errorDiv.style.display = "block";
+                errorDiv.textContent = "Такого аккаунта не существует";
+            }
+        }
+    }
+</script>
+{% endblock %}
+

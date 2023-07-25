@@ -1,0 +1,63 @@
+{% extends "templateBaseMini.html" %}
+{% block link %}     <link rel="stylesheet" href="{{ url_for('static', path='/css/styleSlider.css') }}">{% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+    <div class="container mt-5 mb-5 border w-85 " style="background-color: rgb(232,232,232);border-radius: 10px;">
+  <h1 class="text-center pt-4 size-23  gradient-text text-uppercase">{{ news[0].title }}</h1>
+  <div class="row w-100 p-1 " style="color:black;">
+    <div class="text-center" style=" text-align: center; width: 50%;margin: 0 auto;">
+            {% if type == "NEWS" %}
+                <img src="../../../../Img/tmpImgNews/{{ news[0].news_id }}.png" style="width: 100%" />
+        {% else %}
+              <img src="../../../../Img/tmpImgAd/{{ news[0].news_id }}.png" style="width: 100%" />
+        {% endif %}
+    </div>
+    <div class="p-4" style="line-height: 26px;font-size: 20px;text-align: left;text-indent: 30px;">
+     {{ news[0].description }}
+    </div>
+  </div>
+  </div>
+    {% endblock %}

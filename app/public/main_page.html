@@ -1,0 +1,135 @@
+{% extends "templateBase.html" %}
+
+<!--- Дополнительные ссылки --->
+{% block link %}     <link rel="stylesheet" href="{{ url_for('static', path='/css/styleSlider.css') }}">{% endblock %}
+
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="containers-all pt-1">
+    <div class="container-left">
+        <h1 class="pb-3" style="text-align: center;">ЛИДЕРЫ</h1>
+        <div class="slider-left">
+            <div class="slider_container-left">
+                {% for filmBest in best_film %}
+                <div class="slide-left">
+                    <img src="../Img/tmpImgFilm/{{filmBest[0].film_id }}.png" alt="" width="200px" height="100px">
+                    <div class="href" id="{{loop.index0}}-left" style="display: none"> /film/watch/{{ filmBest[0].film_id }} </div>
+                    <div class="numberCircle " style="   display: flex; position: absolute; top: -10px;right: -10px; margin-top: 0px;width: 40px;height: 40px;">
+                        <p style="padding: 0;margin: auto;"> {{filmBest[0].rating}} </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="container-right">
+        <h1 class="pb-3" style="text-align: center;">НОВИНКИ</h1>
+        <div class="slider-right">
+            <div class="slider_container-right">
+                {% for filmNew in new_film %}
+                <div class="slide-right">
+                    <img src="../Img/tmpImgFilm/{{filmNew[0].film_id }}.png" alt="" width="200px" height="100px">
+                    <div class="href" id="{{loop.index0}}-right" style="display: none"> /film/watch/{{ filmNew[0].film_id }}  </div>
+                    <div class="numberCircle " style="   display: flex; position: absolute; top: -10px;right: -10px; margin-top: 0px;width: 40px;height: 40px;">
+                        <p style="padding: 0;margin: auto;">{{filmNew[0].rating}}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', path='/script/script-left.js') }}"></script>
+<script src="{{ url_for('static', path='/script/script-right.js') }}"></script>
+<div class="container mt-2 pb-5">
+    <h5>Жанры</h5>
+    <div class="row">
+        <div class="col-md">
+            <a href="/main/COMEDY"><img src="{{ url_for('static', path='/imgTypeCinema/comedy.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="col-md">
+            <a href="/main/MELODRAMMA"><img src="{{ url_for('static', path='/imgTypeCinema/melodramas.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="col-md">
+            <a href="/main/HORROR"><img src="{{ url_for('static', path='/imgTypeCinema/horror.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="col-md">
+            <a href="/main/DRAMA"><img src="{{ url_for('static', path='/imgTypeCinema/drams.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="col-md">
+            <a href="/main/WEB"><img src="{{ url_for('static', path='/imgTypeCinema/web.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="w-100"></div>
+        <div class="col-md">
+            <a href="/main/STUDY"><img src="{{ url_for('static', path='/imgTypeCinema/stud.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="col-md">
+            <a href="/main/TRILLER"><img src="{{ url_for('static', path='/imgTypeCinema/thrillers.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="col-md">
+            <a href="/main/FANTASY"><img src="{{ url_for('static', path='/imgTypeCinema/fantasy.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="col-md">
+            <a href="/main/MULT"><img src="{{ url_for('static', path='/imgTypeCinema/cartoon.png') }}" class="img-fluid" alt=""></a>
+        </div>
+        <div class="col-md">
+            <a href="/main/DOC"><img src="{{ url_for('static', path='/imgTypeCinema/doc.png') }}" class="img-fluid" alt=""></a>
+        </div>
+    </div>
+</div>
+<script>
+    resize();
+
+    async function resize() {
+            console.log(document.body.offsetWidth);
+    if (document.body.offsetWidth < 1200 ) {
+        console.log(document.location.pathname);
+        document.location.pathname = document.location.pathname.concat('p/');
+        console.log(document.location.pathname);
+    }
+    }
+
+</script>
+{% endblock %}

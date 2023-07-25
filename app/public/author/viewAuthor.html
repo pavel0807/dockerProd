@@ -1,0 +1,302 @@
+{% extends "templateBase.html" %}
+{% block link %}<link rel="stylesheet" href="{{ url_for('static', path='/css/donateAlert.css') }}">   <link rel="stylesheet" href="{{ url_for('static', path='/css/viewAuthor.css') }}">  {% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+        <!-- Закладка -->
+            <div id= "dialog-container" class= "dialog-container">
+                <div class= "dialog-header">Донат</div>
+                <div id= "dialog-body" class= "dialog-body">Для подтверждения доната введите строку <br> {{user.user_id}} <br> в комментариях к платежу</div>
+                <div class= "dialog-footer">
+                    <a onclick= "CustomAlert.red()" style="color: goldenrod;">Понятно</a>
+                    <a onclick= "CustomAlert.close()" style="color: goldenrod;">Выйти</a>
+                </div>
+            </div>
+<!-- Start data -->
+<div class="container mt-5 mb-5 w-100 " >
+    <!-- Главная таблциа -->
+    <div class="row mt-5 mr-5 ml-5 mb-5 h-80">
+        <!-- Фото автора + донат -->
+        <div class="col-5 px-2">
+            <!-- Фото и имя -->
+            <div class="px-5 mx-3" style="text-align: center;">
+                <div class=" border w-80 " style="border-radius: 10px;border-color:rgb(107,76,59) !important;">
+                    <div class="pt-4 pb-4 " style="">
+                        <img src="../../Img/tmpImgUser/{{ user.user_id }}.png" alt="" class="round" style="width: 200px;height: 200px;">
+                    </div>
+                    <div class="pt-2 pb-5" style="text-align: center">
+                        <h4>{{ user.name }} {{ user.surname }}</h4>
+                        <h5 class="" style="color:gray"> Режиссер</h5>
+                    </div>
+                </div>
+            </div>
+            <!-- Донат -->
+            <div class="px-5 pt-5 mx-5">
+                <div class="col d-flex mx-auto">
+                    <input type="range" min="1" max="1000" data-slider-id="count_slider" value="50" class="slider " id="count_donat" oninput="fun1()">
+                </div>
+                <div class="w-100"></div>
+                <div class="col mx-auto d-flex mt-4">
+                    <span class="input_RU mx-auto"><input type="text" class="mx-auto" id="enter_count_donat" placeholder="50"></span>
+                </div>
+                <div class="mx-auto  py-4 px-3 " onclick="CustomAlert.show('{{user.user_id}}')">
+                    <img src="{{ url_for('static', path='/film_show/donatebutton.png') }}" alt="" style="width: 100%;height: 70px;">
+                </div>
+                <div class="d-flex">
+                    <div class="font-size-min">
+                    Дарение происходит на следующих условиях
+                    </div>
+                    <input type="checkbox" id="politicsDonate" value="" autocomplete="off" style="width: 10%;"/>
+                </div>
+                <script>
+                    const container = document.getElementById('dialog-container');
+                const CustomAlert = new function(msg) {
+
+                       this.show = function(msg) {
+                           if (document.getElementById("politicsDonate").checked) {
+                               console.log("here");
+                               let content = document.getElementById('dialog-body');
+                               container.style.top = '30%';
+                               container.style.opacity = 1;
+                           }
+                    }
+                    this.red = function () {
+                        window.location.href = "https://qiwi.com/payment/form/99999?extra['accountType']=nickname&extra['account']=DONATEATR";
+                    }
+                    this.close = function() {
+                        container.style.top = '-30%';
+                        container.style.opacity = 0;
+                    }
+                }
+                </script>
+            </div>
+            <script src="{{ url_for('static', path='/script/film_show.js') }}"></script>
+        </div>
+        <!-- Инфо + фильмы -->
+        <div class="col-7">
+            <!-- О персоне -->
+            <div>
+                <h4 class="pb-2" style="text-indent: 30px;" >О персоне</h4>
+                <p style="text-indent: 40px;line-height: 180%;">
+                    {{ aboutAuthor.about_person }}
+                </p>
+            </div>
+            <!-- Награды -->
+            <div>
+                <h4 class="pb-2" style="text-indent: 30px;">Награды</h4>
+                <ul style="line-height: 180%;">
+                    {% for award in awards %}
+                    <li> {{ award }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <!-- Работы -->
+            {% if dictFilm %}
+            <div>
+                <h4 class="pb-2" style="text-indent: 30px;">Работы</h4>
+
+                <div class="ml-5">
+                    {% for key,value in dictFilm.items() %}
+                        <button class="btn" id="{{ key }}-btn" onclick="show('{{ key }}')" > {{ key }} </button>
+                    {% endfor %}
+                </div>
+                <div  class="all-content pt-2" id="content">
+                {% for key,value in dictFilm.items() %}
+                    <div class="disp-1" id="{{ key }}-div" style="{% if not loop.first %} display:none; {% endif %}">
+                        {% for v in value %}
+                        <ul>
+                            <a href="/film/watch/{{ v[0] }}" style="color: white;">
+                               <li> {{ v[1] }}</li>
+                            </a>
+
+                        </ul>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+<script>
+    async function hideAll() {
+        var divsToHide = document.getElementsByClassName("disp-1"); //divsToHide is an array
+        for(var i = 0; i < divsToHide.length; i++){
+            divsToHide[i].style.display = "none"; // depending on what you're doing
+        }
+    }
+    async function show(id){
+        await hideAll();
+        var d = id.concat('', "-div")
+        document.getElementById(d).style.display = "block";
+    }
+    /*
+    var DIRECTOR = document.getElementById('DIRECTOR-btn');
+    DIRECTOR.style.cursor = 'pointer';
+    DIRECTOR.onclick = function() {
+        var DIRECTOR = document.getElementById('DIRECTOR-div');
+        hideAll();
+        DIRECTOR.style.display = "block";
+    };
+        var PRODUCER = document.getElementById('PRODUCER-btn');
+    PRODUCER.style.cursor = 'pointer';
+    PRODUCER.onclick = function() {
+        var PRODUCER = document.getElementById('PRODUCER-div');
+        hideAll();
+        PRODUCER.style.display = "block";
+    };
+
+        var DIRECTOR_PRODUCER = document.getElementById('DIRECTOR_PRODUCER-btn');
+    DIRECTOR_PRODUCER.style.cursor = 'pointer';
+    DIRECTOR_PRODUCER.onclick = function() {
+        var DIRECTOR_PRODUCER = document.getElementById('DIRECTOR_PRODUCER-div');
+        hideAll();
+        DIRECTOR_PRODUCER.style.display = "block";
+    };
+
+
+        var ACTOR = document.getElementById('ACTOR-btn');
+    ACTOR.style.cursor = 'pointer';
+    ACTOR.onclick = function() {
+        var ACTOR = document.getElementById('ACTOR-div');
+        hideAll();
+        ACTOR.style.display = "block";
+    };
+
+
+        var OPERATOR = document.getElementById('OPERATOR-btn');
+    OPERATOR.style.cursor = 'pointer';
+    OPERATOR.onclick = function() {
+        var OPERATOR = document.getElementById('OPERATOR-div');
+        hideAll();
+        OPERATOR.style.display = "block";
+    };
+
+            var ART = document.getElementById('ART-btn');
+    ART.style.cursor = 'pointer';
+    ART.onclick = function() {
+        var ART = document.getElementById('ART-div');
+        hideAll();
+        ART.style.display = "block";
+    };
+
+
+
+        var ART_LOOK = document.getElementById('ART_LOOK-btn');
+    ART_LOOK.style.cursor = 'pointer';
+    ART_LOOK.onclick = function() {
+        var ART_LOOK = document.getElementById('ART_LOOK-div');
+        hideAll();
+        ART_LOOK.style.display = "block";
+    };
+
+
+
+        var COMPOSER = document.getElementById('COMPOSER-btn');
+    COMPOSER.style.cursor = 'pointer';
+    COMPOSER.onclick = function() {
+        var COMPOSER = document.getElementById('COMPOSER-div');
+        hideAll();
+        COMPOSER.style.display = "block";
+    };
+            var AUTHOR = document.getElementById('AUTHOR-btn');
+    AUTHOR.style.cursor = 'pointer';
+    AUTHOR.onclick = function() {
+        var AUTHOR = document.getElementById('AUTHOR-div');
+        hideAll();
+        AUTHOR.style.display = "block";
+    };
+            var ASSISTANT_PRODUCER = document.getElementById('ASSISTANT_PRODUCER-btn');
+    ASSISTANT_PRODUCER.style.cursor = 'pointer';
+    ASSISTANT_PRODUCER.onclick = function() {
+        var ASSISTANT_PRODUCER = document.getElementById('ASSISTANT_PRODUCER-div');
+        hideAll();
+        ASSISTANT_PRODUCER.style.display = "block";
+    };
+            var ASSISTANT_OPERATOR = document.getElementById('ASSISTANT_OPERATOR-btn');
+    ASSISTANT_OPERATOR.style.cursor = 'pointer';
+    ASSISTANT_OPERATOR.onclick = function() {
+        var ASSISTANT_OPERATOR = document.getElementById('ASSISTANT_OPERATOR-div');
+        hideAll();
+        ASSISTANT_OPERATOR.style.display = "block";
+    };
+            var GRIM = document.getElementById('GRIM-btn');
+    GRIM.style.cursor = 'pointer';
+    GRIM.onclick = function() {
+        var GRIM = document.getElementById('GRIM-div');
+        hideAll();
+        GRIM.style.display = "block";
+    };
+                var SOUND = document.getElementById('SOUND-btn');
+    SOUND.style.cursor = 'pointer';
+    SOUND.onclick = function() {
+        var SOUND = document.getElementById('SOUND-div');
+        hideAll();
+        SOUND.style.display = "block";
+    };
+                var VISUAL_EFFECTS = document.getElementById('VISUAL_EFFECTS-btn');
+    VISUAL_EFFECTS.style.cursor = 'pointer';
+    VISUAL_EFFECTS.onclick = function() {
+        var VISUAL_EFFECTS = document.getElementById('VISUAL_EFFECTS-div');
+        hideAll();
+        VISUAL_EFFECTS.style.display = "block";
+    };
+                var GAFER = document.getElementById('GAFER-btn');
+    GAFER.style.cursor = 'pointer';
+    GAFER.onclick = function() {
+        var GAFER = document.getElementById('GAFER-div');
+        hideAll();
+        GAFER.style.display = "block";
+    };
+                var PHOTO = document.getElementById('PHOTO-btn');
+    PHOTO.style.cursor = 'pointer';
+    PHOTO.onclick = function() {
+        var PHOTO = document.getElementById('PHOTO-div');
+        hideAll();
+        PHOTO.style.display = "block";
+    };
+    */
+
+</script>
+{% endblock %}

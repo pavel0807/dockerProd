@@ -1,0 +1,39 @@
+{% extends "templateBaseMini.html" %}
+{% block link %}     <link rel="stylesheet" href="{{ url_for('static', path='/css/styleSlider.css') }}">{% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+<div class="container bg-white text-dark needrounded" style="border-radius: 5% !important; height: 80%; min-height: 200px;max-height: 750px; width: 90%;">
+    <h1 class="text-center pt-4 p-3 size-23 comedy gradient-text">Уведомления</h1>
+    <div class="row  pr-3 pl-3 pb-3  " style="min-height: 100px;max-height: 650px; overflow: auto;">
+    {% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+    <div class="col position-relative p-2">
+        <div class="" style="height: 100px; justify-content: space-between;">
+            {{ noti[0].description }}
+        </div>
+        <small>{{ noti[0].date }}</small>
+    </div>
+    <div class="w-100"></div>
+    <hr style="height: 2px;color: black; width: 100%;display: block;">
+    {% endfor %}
+    {% endif %}
+
+
+{% endblock %}

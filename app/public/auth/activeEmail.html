@@ -1,0 +1,105 @@
+{% extends "templateBase.html" %}
+{% block link %}     <link rel="stylesheet" href="{{ url_for('static', path='/css/flickity.css') }}">{% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+<div class="container mt-5 mb-5 border w-85 " style="background-color: rgb(232,232,232);border-radius: 10px;">
+    <div class="header pl-5 pr-5 pt-5 d-flex justify-content-between " style="color:black;">
+        <h3> ВХОД </h3>
+        <h3>Еще нет аккаунта? <a href='/user/registration'>Регистрация </a> </h3>
+    </div>
+        <div class="row  p-3" style="color:black;">
+            <h2>На ваш Email адресс отправлено подтверждение для регистрации</h2>
+        </div>
+        <div class="back  p-1" style="color:black;margin: 0 30%;text-align: center; ">
+            <h6>Забыли пароль?</h6>
+            <button onclick="send()"  style="background-color: rgb(3,13,40);color:white;font-size: 20px;padding: 15px 20px;border-radius:10px">
+                Войти
+            </button>
+        </div>
+</div>
+<script>
+    async function send(){
+        // получаем введеное в поле имя и возраст
+        const login = document.getElementById("login").value;
+        const password = document.getElementById("password").value;
+
+
+        let formData = new FormData();
+
+        formData.append('username', login);
+        formData.append('password', password);
+
+
+        const response = await fetch('/user/login', {
+                method: 'POST',
+                body: formData,
+            });
+        if (response.ok){
+            const data = await response.json();
+            console.log(data)
+        }
+        else {
+            console.log(response);
+        }
+        // отправляем запрос
+        //const response = await fetch("/user/login", {
+          //      method: "POST",
+            //    headers: { "Accept": "application/json", "Content-Type": "application/json" },
+              //  body: JSON.stringify({
+                //    login:login,
+                  //  password:password
+                //})
+            //});
+            //if (response.ok) {
+              //  const data = await response.json();
+                //document.getElementById("message").textContent = data.message;
+            //}
+            //else
+              //  console.log(response);
+    }
+</script>
+{% endblock %}
+

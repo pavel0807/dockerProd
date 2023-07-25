@@ -1,0 +1,313 @@
+@font-face {
+    font-family: "Mak";
+    src: url('fonts/MAK-bold.otf');
+}
+@font-face {
+    font-family: "Calypso";
+    src: url('fonts/Calypso.ttf');
+}
+@font-face {
+    font-family: "Genosa";
+    src: url('fonts/genosa-regular.otf');
+}
+@font-face {
+    font-family: "Journalism";
+    src: url('fonts/journalism.ttf');
+}
+@font-face {
+    font-family: "Miratrix";
+    src: url('fonts/Miratrix.otf');
+}
+@font-face {
+    font-family: "KiwiMaru";
+    src: url('fonts/KiwiMaru.ttf');
+}
+@font-face {
+    font-family: "Vetka";
+    src: url('fonts/Vetka.otf');
+}
+@font-face {
+    font-family: "BradleyHand";
+    src: url('fonts/BRADHI.ttf');
+}
+@font-face {
+    font-family: "Nord-Star-Deco";
+    src: url('fonts/Nord-Star-Deco.ttf');
+}
+@font-face {
+    font-family: "Simphonia-Deco";
+    src: url('fonts/Simphonia-Deco.ttf');
+}
+
+
+body
+{
+    background-color: rgb(2,12,37);
+    font-family: 'Montserrat',regular;
+}
+
+h1,h2,h3,h4,h5,h6{
+    font-family: 'Montserrat',medium !important;
+}
+
+.gradient-text {
+    background: #744621;
+    background: linear-gradient(to bottom right, #744621 35%, #dea98b 50%, #744010 60%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.comedy {
+    font-family: 'Mak' ,medium !important;
+}
+.melodramma {
+    font-family: 'Calypso' ,medium !important;
+}
+.horror {
+    font-family: 'Genosa' ,medium !important;
+}
+.drama {
+    font-family: 'Journalism' ,medium !important;
+}
+.study {
+    font-family: 'Miratrix' ,medium !important;
+}
+.triller {
+    font-family: 'KiwiMaru' ,medium !important;
+}
+.fantasy {
+    font-family: 'Vetka' ,medium !important;
+}
+.mult {
+    font-family: 'BradleyHand' ,medium !important;
+}
+.doc {
+    font-family: 'Nord-Star-Deco' ,medium !important;
+}
+.web {
+    font-family: 'Simphonia-Deco'   ,medium !important;
+}
+a{
+    text-decoration: none;
+
+}
+.notification .hr{
+    width: 100%;
+    height: 2px;
+    background-color: white;
+}
+.about:hover {
+    text-shadow: 0 0 12px #6633FF;
+    -moz-text-shadow: 0 0 12px #6633FF;
+    -o-text-shadow: 0 0 12px #6633FF;
+    -ms-text-shadow: 0 0 12px #6633FF;
+    -webkit-text-shadow: 0 0 12px #6633FF;
+}
+
+.circle:hover {
+    background:#FF0000;
+    width:35px;
+    height:10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 40px;
+    border-radius:40px;
+
+}
+.best
+{
+    height: 360px;
+    width: 360px;
+}
+.notification{
+    box-shadow: 0 0 1rem 0 rgba(41, 39, 39, 0.2);
+    border-radius: 3px;
+    position: relative;
+    z-index: 4000;
+    background: inherit;
+    overflow: hidden;
+}
+.notification:before{
+    content: "";
+    position: absolute;
+    background: inherit;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: inset 0 0 2000px rgba(0, 10, 37, 1);
+    filter: blur(1px);
+}
+.sec-btn:hover .sec-content {
+    display: block;
+}
+.box {
+    display: none;
+    box-shadow: 0 0 1rem 0 rgba(41, 39, 39, 0.2);
+    border-radius: 3px;
+    position: relative;
+    z-index: 1;
+    background: inherit;
+    overflow: hidden;
+}
+
+.box:before {
+    content: "";
+    position: absolute;
+    background: inherit;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: inset 0 0 2000px rgba(0, 10, 37, 1);
+    filter: blur(1px);
+}
+.img-shadow{
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+.numberCircle {
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    padding: 2px;
+
+    background: rgb(140,101,40);
+    background: linear-gradient(153deg, rgba(140,101,40,1) 0%, rgba(222,169,139,1) 50%, rgba(140,101,40,1) 100%);
+
+    color: white;
+    text-align: center;
+
+    font: 16px Arial, sans-serif;
+}
+
+.LC:hover .box {
+    display:block;
+    position:absolute;
+    z-index:2;
+    top: 60px;
+    box-shadow: 0px 0px 5px  rgb(2,12,37);
+}
+
+.input-hidden {
+    position: absolute;
+    left: -9999px;
+}
+
+input[type=radio]:checked + label>img {
+    border: 0px solid #fff;
+}
+
+/* Stuff after this is only to make things more pretty */
+input[type=radio] + label>img {
+    border: 0px dashed #444;
+    width: 50px;
+    height: 50px;
+}
+
+ input[id="0+"]:checked  + label>img   {
+    content: url("static/film_add/0+_yes.png");
+}
+
+input[id="6+"]:checked  + label>img   {
+    content: url("static/film_add/6+_yes.png");
+}
+input[id="12+"]:checked  + label>img   {
+    content: url("static/film_add/12+_yes.png");
+}
+input[id="16+"]:checked  + label>img   {
+    content: url("static/film_add/16+_yes.png");
+}
+input[id="18+"]:checked  + label>img   {
+    content: url("static/film_add/18+_yes.png");
+}
+.custom-image-add input {
+    display: none;
+}
+input[type="checkbox"] {
+    display: grid;
+    place-content: center;
+}
+
+.notification-msg {
+    z-index: 100;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin: auto 0px;
+}
+
+
+/*Set dimensions of all images*/
+.gallery-img {
+    width: 300px;
+    height: 250px;
+}
+
+.carousel-container {
+    position: relative;
+    /*Hides images bleeding off page*/
+    overflow: hidden;
+    /*Centers div*/
+    margin: auto;
+    width: 100%;
+    height: 250px;
+}
+
+.carousel-slide {
+    /*Flex allows image to bleed to end*/
+    display: flex;
+    width: 100%;
+    height: 250px;
+}
+
+#prevbutton {
+    /*Bases position of button on parent*/
+    position: absolute;
+    top: 50%;
+    /*Moves button back up half its size to vertically-align*/
+    margin-top: -15px;
+    left: 3%;
+    /*Brings layer to top*/
+    z-index: 10;
+    color: #2F4F4F	;
+    font-size: 30px;
+    cursor: pointer;
+    text-shadow: 2px 2px rgba(0,0,0,0.2);
+}
+
+#nextbutton {
+    position: absolute;
+    top: 50%;
+    margin-top: -15px;
+    right: 3%;
+    z-index: 10;
+    color: #2F4F4F	;
+    font-size: 30px;
+    cursor: pointer;
+    text-shadow: 2px 2px rgba(0,0,0,0.2);
+}
+
+
+.oneFilm img {
+    width: 260px;
+    height: 140px;
+}
+.oneNews {
+    padding-right: 5px;
+    z-index: 0;
+}
+.oneNews img {
+    width: 260px;
+    height: 140px;
+}
+.show
+{
+    display: block!important;
+}
+.hide
+{
+    display: none!important;
+}
+.flickity-prev-next-button:disabled {
+    display: none;
+}

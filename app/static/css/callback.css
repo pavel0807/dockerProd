@@ -1,0 +1,52 @@
+body
+{
+    background-color: rgb(2,12,37);
+}
+a{
+    text-decoration: none;
+
+}
+.about:hover {
+    text-shadow: 0 0 12px #6633FF;
+    -moz-text-shadow: 0 0 12px #6633FF;
+    -o-text-shadow: 0 0 12px #6633FF;
+    -ms-text-shadow: 0 0 12px #6633FF;
+    -webkit-text-shadow: 0 0 12px #6633FF;
+}
+.search:after{
+    content: '\1F50D';
+}
+.circle:hover {
+    background:#FF0000;
+    width:35px;
+    height:10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 40px;
+    border-radius:40px;
+
+}
+.best {
+    height: 360px;
+    width: 360px;
+
+}
+
+.mark {
+    position:absolute;
+    top:-6%;
+    right: 0;
+    border-radius: 50%;
+    /* не забываем о кроссбраузерности */
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -khtml-border-radius: 50%;
+    background: rgb(126,98,83);
+    background: linear-gradient(90deg, rgba(126,98,83,1) 0%, rgba(196,156,134,1) 48%, rgba(126,98,83,1) 100%);
+    color:white;
+}
+
+
+.needrounded
+{
+    border-radius: 20px;
+}

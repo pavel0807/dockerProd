@@ -1,0 +1,379 @@
+{% extends "templateBaseMini.html" %}
+{% block link %}
+<link rel="stylesheet" href="{{ url_for('static', path='/css/film_show.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='/css/donateAlert.css') }}">
+<link
+  href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css"
+  rel="stylesheet"  type='text/css'>
+{% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+        <!-- Закладка -->
+            <div id= "dialog-container" class= "dialog-container">
+                <div class= "dialog-header">Донат</div>
+                <div id= "dialog-body" class= "dialog-body">Пожалуйста, не изменяйте комментарий к оплате</div>
+                <div class= "dialog-footer">
+                    <a onclick= "CustomAlert.red()" style="color: goldenrod;">Понятно</a>
+                    <a onclick= "CustomAlert.close()" style="color: goldenrod;">Выйти</a>
+                </div>
+            </div>
+
+<div class="container" style="margin: 0 auto;">
+<div class="row" style="width: 85%; margin: 0 auto;">
+    <div style="display: none" id="film_id_none"> {{ author_user.user_id }} </div>
+    <div class="col"><h3 class="mx-auto" style="text-align: center;">{{ film_info.name }}</h3></div>
+    <div class="w-100"></div>
+
+    <div class="col">
+        <div style="width: 100%;height: 300px;z-index: 0;">
+                <iframe src="{{film_info.url}}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" style="width: 100%; height: 300px;" allowfullscreen></iframe>
+        </div>
+    </div>
+    <div class="w-100"></div>
+    <div class="col pt-4">
+        <div class="d-flex mx-auto" style="align-content: space-between;">
+            <div class="img" style="float: left;">
+                <a href="/author/show/{{ author_user.user_id }}">
+                    <img src="{% if thereareImg %} {{ url_for('Img', path='/tmpImgUser/default.png') }} {% else %}../../../Img/tmpImgUser/{{ author_user.user_id }}.png  {% endif %}    "alt="" class="round" style="width: 50px;height: 50px;border-radius: 100px;">
+                </a>
+            </div>
+            <div class="fio" style="text-align: right;float: right;">
+                <p class="mb-3">Режиссер</p>
+                <h6>{{author_user.surname}} {{author_user.name}}</h6>
+            </div>
+        </div>
+    </div>
+    <div class="w-100"></div>
+    <div class="col pt-2">
+        <small class="text-muted"> dasbdajs dbjasjdhjasdk sahd kjashdjashdj ksahdsahd askdh asjd hasdhjsahjd shj sahjdhj ashjd ashdj ashjd hjashd sahjd asdhjashjd hjas dashj dashjd ashj dhjas dahjs hjasd asjh das hdjashd ashj hjdsa sahj jsadj ashj dhjsa ashjd  </small>
+        <div class="text-justify pt-1 text-muted" style="font-size: 8px;">
+            Рейтинг: {{ film_info.rating }}<br>
+            Дата добавления: {{ film_info.data_add }}<br>
+            Категория:  <div style="display: inline" id="type">{{ film_info.type_of_film.value }}</div><br>
+            Возрастное ограничение: <div style="display: inline" id="age">{{film_info.age_restriction.value}}</div>
+        </div>
+        <script>
+            let ageRestriction = document.getElementById("age").innerHTML;
+
+            if (ageRestriction == "Age") {
+                document.getElementById("age").innerHTML = "0+";
+            }
+            if (ageRestriction == "Kids") {
+                document.getElementById("age").innerHTML = "6+";
+            }
+            if (ageRestriction == "Children") {
+                document.getElementById("age").innerHTML = "12+";
+            }
+            if (ageRestriction == "Body") {
+                document.getElementById("age").innerHTML = "16+";
+            }
+            if (ageRestriction == "Big") {
+                document.getElementById("age").innerHTML = "18+";
+            }
+
+            let typeFilm = document.getElementById("type").innerHTML;
+
+            if (typeFilm == "DOC") {
+                document.getElementById("type").innerHTML = "Документальный";
+            }
+            if (typeFilm == "WEB") {
+                document.getElementById("type").innerHTML = "WEB-сериал";
+            }
+            if (typeFilm == "TRILLER") {
+                document.getElementById("type").innerHTML = "Триллер";
+            }
+            if (typeFilm == "COMEDY") {
+                document.getElementById("type").innerHTML = "Комедия";
+            }
+            if (typeFilm == "DRAMA") {
+                document.getElementById("type").innerHTML = "Драма";
+            }
+            if (typeFilm == "FANTASY") {
+                document.getElementById("type").innerHTML = "Фантастика";
+            }
+            if (typeFilm == "HORROR") {
+                document.getElementById("type").innerHTML = "Ужасы";
+            }
+            if (typeFilm == "STUDY") {
+                document.getElementById("type").innerHTML = "Студентческий";
+            }
+            if (typeFilm == "MELODRAMMA") {
+                document.getElementById("type").innerHTML = "Мелодрамма";
+            }
+            if (typeFilm == "MULT") {
+                document.getElementById("type").innerHTML = "Мульфильм";
+            }
+        </script>
+        <div class="w-100"></div>
+        <div class="col">
+            <div class="d-flex">
+                <div class="rating mx-auto" style="margin: 0 auto;">
+                    <input type="radio" id="star10" name="rating" value="1" /><label for="star10" title="Rocks!">5 stars</label>
+                    <input type="radio" id="star9" name="rating" value="2" /><label for="star9" title="Rocks!">4 stars</label>
+                    <input type="radio" id="star8" name="rating" value="3" /><label for="star8" title="Pretty good">3 stars</label>
+                    <input type="radio" id="star7" name="rating" value="4" /><label for="star7" title="Pretty good">2 stars</label>
+                    <input type="radio" id="star6" name="rating" value="5" /><label for="star6" title="Meh">1 star</label>
+                </div>
+            </div>
+                    <script>
+                        async function sendMark(id){
+                            let checked = document.querySelector('input[name="rating"]:checked');
+                            let bubu = "0";
+                            if( checked ) {
+                                bubu = checked.value;
+                            }
+                            let formData = new FormData();
+                            var D = JSON.stringify({
+                                film_id:id,
+                                rating:bubu
+                            })
+
+                            formData.append('info', D);
+                                const response = await fetch('/additional/get_mark', {
+                                method: 'POST',
+                                body: formData,
+                            });
+
+                        }
+                    </script>
+        </div>
+        <div class="w-100"></div>
+    <div class="col pt-2" style="margin: 0 auto; text-align: center;">
+        <div class="d-flex mx-auto" style="margin: 0 auto; text-align: center;">
+            <div id="text-bookmark" class="d-inline-block flex-column pr-0 text-right pr-2" >
+                            {% if film_in_bookmark %}
+                                Фильм в закладках
+                            {% else %}
+                                Добавить в закладки
+                            {% endif %}
+        </div>
+        {% if film_in_bookmark %}
+            <div class="" id="bookmark" style="color: blue;" onclick="addBookmark('{{film_info.film_id}}')">
+                <i class="fa fa-thin fa-bookmark"></i>
+            </div>
+        {% else %}
+            <div class="" id="bookmark" style="color: white;" onclick="addBookmark('{{film_info.film_id}}')">
+                <i class="fa fa-thin fa-bookmark"></i>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+                        <script>
+                            async function addBookmark(id){
+                                var textBookmark = document.getElementById("text-bookmark")
+                                urlToSend = '/additional/addBookmark';
+                                urlToSend = urlToSend.concat('/',id);
+                                console.log(urlToSend);
+                                const response = await fetch(urlToSend, {
+                                    method: 'GET'
+                                });
+                                if (response.ok) {
+                                    let di = document.getElementById('bookmark');
+                                    if (di.style.color == "white") {
+                                        di.style.color = "blue";
+                                        textBookmark.innerHTML = "Фильм в закладках"
+                                    }
+                                    else {
+                                        di.style.color = "white";
+                                        textBookmark.innerHTML = "Добавить в закладки"
+                                    }
+                                }
+                                else {
+                                     document.location.href = document.location.href.replace(document.location.pathname,'/user/login/')
+                                }
+                            }
+                        </script>
+        <div class="w-100"></div>
+        <div class="row d-flex pt-3">
+            <div class="col d-flex mx-auto">
+                <input type="range" min="1" max="1000" data-slider-id="count_slider" value="50" class="slider " id="count_donat" oninput="fun1()">
+            </div>
+            <div class="w-100"></div>
+            <div class="col mx-auto d-flex mt-3">
+                <span class="input_RU mx-auto"><input type="text" class="mx-auto" id="enter_count_donat" placeholder="50" id="count_donat_2"></span>
+            </div>
+        </div>
+        <div class="w-100"></div>
+        <div class="col ">
+            <div class=" mt-2" style="margin: 0 auto;text-align: center;" onclick= "CustomAlert.show('{{author_user.user_id}}')">
+                <img src="{{ url_for('static', path='/film_show/donatebutton.png') }} " alt="" style="width: 30%;height: 25px; margin: 0 auto;">
+            </div>
+        </div>
+        <script src="{{ url_for('static', path='/film_show.css') }}"></script>
+
+
+
+
+        <div class="d-flex pt-2">
+            <div class="font-size-min">
+                Дарение происходит на следующих условиях
+            </div>
+            <input type="checkbox" id="politicsDonate" value="" autocomplete="off" style="width: 10%;"/>
+        </div>
+
+        <script>
+            const container = document.getElementById('dialog-container');
+            const CustomAlert = new function(msg) {
+
+                   this.show = function(msg) {
+                       if (document.getElementById("politicsDonate").checked) {
+                           console.log("here");
+                           let content = document.getElementById('dialog-body');
+                           container.style.top = '30%';
+                           container.style.opacity = 1;
+                       }
+                }
+                this.red = function () {
+                    let idFilm = document.getElementById("film_id_none").innerHTML;
+                    let countMoney = document.getElementById("enter_count_donat").value;
+                    url = "https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=79062195379&amountInteger=";
+                    url = url.concat(countMoney,"&amountFraction=0&extra%5B%27comment%27%5D=");
+                    url = url.concat(idFilm,"&currency=643");
+                    window.location.href = url;
+                }
+                this.close = function() {
+                    container.style.top = '-30%';
+                    container.style.opacity = 0;
+                }
+            }
+        </script>
+    </div>
+    <div class="w-100"></div>
+    <div class="col pt-2">
+        <div class="error-comment" style="color: red;display: none"> Вы не зарегистрированы! </div>
+        <div class="formComment"  style="height: 100px;width: 100%; position: relative">
+            <input type="text"  id="comment" style=" width: 100%;height: 100%; border-radius:15px;background-color: rgb(21,31,58);border:0px;"  placeholder="Оставьте комментарий" name="comment">
+            <button type=button class="btn" id="senderComment" style="position: absolute;color:gray; bottom: 4%;right: 2%;z-index: 2; background-color: rgb(2,12,37);" onclick="sendComment('{{film_info.film_id}}','id')">Отправить</button>
+        </div>
+    </div>
+    <div class="w-100"></div>
+    <h5 class="pt-3 mx-auto">Комментарии</h5>
+    <div class="col mx-auto mt-4" >
+        {% if comment %}
+        {% for commentOne , UserOne, SubComment in comment %}
+        <div class="comment p-3 mb-4" style="width: 100%; border-radius:15px;background-color: rgb(21,31,58);border:0px;position: relative">
+            <div class="pt-1 pl-2 text-muted">{% if UserOne.is_author %} Автор {% else %} Зритель {% endif %}</div>
+            <div class="d-flex">
+                <div class="pt-2 pl-1">{{ UserOne.name }} {{ UserOne.surname }}</div>
+                <div class="pt-2 pl-3 text-muted">{{ commentOne.date_add }}</div>
+            </div>
+
+            <div class="pb-4 pl-4 pt-3"> {{ commentOne.data }}</div>
+            <button type="submit" class="btn" style="position: absolute;color:gray; border:0;bottom: 4%;right: 2%;z-index: 2; background-color: rgb(2,12,37);" onclick="answerByComment('{{ commentOne.comment_id  }}','{{ UserOne.name }} {{ UserOne.surname }}')">Ответить</button>
+        </div>
+        {% if SubComment[0] %}
+        {% for SUBcommentOne , SUBUserOne in SubComment[0] %}
+
+        {% if loop.length > 1 %}
+        {% if loop.index0 == 1  %}
+            <div id="hiddenComment-{{SubComment[1]}}" style="display: none">
+        {% endif %}
+        {% endif %}
+
+        <div class="comment-second ml-5 mt-3 w-100 d-flex mb-4">
+            <div class="">
+                <img src="{{ url_for('static', path='/film_show/link.png') }}" alt="" style="width: 50px;height: 50px;">
+            </div>
+            <div class="p-4 mt-3" style="width: 100%; border-radius:15px;background-color: rgb(21,31,58);border:0px;position: relative">
+                <div class="pt-1 pl-2 text-muted">{% if SUBUserOne.is_author %} Автор {% else %} Зритель {% endif %}</div>
+                <div class="d-flex">
+                    <div class="pt-2 pl-1">{{ SUBUserOne.name }} {{ SUBUserOne.surname }}</div>
+                    <div class="pt-2 pl-3 text-muted">{{ SUBcommentOne.date_add }}</div>
+                </div>
+
+                <div class="pb-4 pl-4 pt-3"> {{ SUBcommentOne.data }}</div>
+                <button type="submit" class="btn" style="position: absolute;color:gray; border:0;bottom: 4%;right: 2%;z-index: 2; background-color: rgb(2,12,37);" onclick="answerByComment('{{ commentOne.comment_id  }}','{{ SUBUserOne.name }} {{ SUBUserOne.surname }}')">Ответить</button>
+            </div>
+        </div>
+
+        {% if loop.length > 1 %}
+        {% if loop.last %}
+            </div>
+        {% endif %}
+        {% endif %}
+
+        {% if loop.length > 1 %}
+        {% if loop.first %}
+        <!-- Кнопка открытия комментариев  -->
+            <div class="ml-5 w-100 pl-5 mt-4 mb-4" id="showContent-{{SubComment[1]}}" style="display: flex;border:0px;">
+                <img src="{{ url_for('static', path='/film_show/sort.png') }}" alt="">
+                <div id="ShowHiddenComment-{{SubComment[1]}}" onclick="showComment('{{SubComment[1]}}')">Показать все ответы</div>
+            </div>
+        {% endif %}
+        {% endif %}
+
+        {% endfor %}
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+        <script>
+            async function showComment(id) {
+                let content = document.getElementById("hiddenComment-".concat('',id));
+                let show = document.getElementById("showContent-".concat('',id));
+                content.style.display = "block";
+                show.style.display = "none";
+            }
+            async function answerByComment(idComment,Name) {
+                console.log("inner");
+                let inputComment = document.querySelector('input[id="comment"]');
+                var answer = "Ваш ответ "
+                inputComment.placeholder = answer.concat(Name,',');
+
+                let SeenderComment = document.getElementById("senderComment");
+                var stringOnclick = SeenderComment.getAttribute("onclick");
+                console.log(stringOnclick);
+                var onclickSender = stringOnclick.replace("id",idComment);
+                SeenderComment.setAttribute("onclick",onclickSender);
+
+            }
+        </script>
+    <br><br><br>
+    </div>
+
+</div>
+<script src="{{ url_for('static', path='/script/film_show.js') }}"></script>
+{% endblock %}

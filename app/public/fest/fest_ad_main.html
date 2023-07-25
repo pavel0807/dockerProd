@@ -1,0 +1,82 @@
+{% extends "templateBase.html" %}
+{% block link %}     <link rel="stylesheet" href="{{ url_for('static', path='/css/flickity.css') }}">{% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+
+<div class="container bg-white text-dark needrounded mb-5 " style="border-radius: 4% !important;">
+    <!-- новости -->
+    <div>
+        <h2 class="pt-4 px-4 size-14 ">
+            <a href="/fest/NEWS" style="color:black"> ОБЬЯВЛЕНИЯ </a>
+        </h2>
+        {% if last_news %}
+        <div class="p-2 gallery js-flickity " style="position: relative;" data-flickity='{ "initialIndex": ".is-initial-select","groupCells": 4,"pageDots": false }' >
+        {% for news in last_news %}
+            <div class="oneNews gallery-cell"  style="position: relative;">
+                <a href="/fest/watch/NEWS/{{ news[0].fest_id }}"><img src="../../Img/tmpImgFest/{{ news[0].fest_id }}.png " style="border-radius: 5% !important;" class="img-fluid rounded img-shadow" alt=""></a>
+                <div class="ml-1 mt-2 ">{{ news[0].title }}</div>
+            </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <!-- обьявления -->
+        <div>
+        <h2 class="pt-4 px-4 pb-1 size-14 ">
+            <a href="/fest/AD" style="color:black"> ПОБЕДИТЕЛИ </a>
+        </h2>
+        {% if last_ad %}
+        <div class="p-2 gallery js-flickity " style="position: relative;" data-flickity='{ "initialIndex": ".is-initial-select","groupCells": 4,"pageDots": false }' >
+        {% for ad in last_ad %}
+            <div class="oneNews gallery-cell"  style="position: relative;">
+                <a href="/fest/watch/AD/{{ ad[0].fest_id }}"><img src="../../Img/tmpImgFest/{{ ad[0].fest_id }}.png" style="border-radius: 5% !important;" class="img-fluid rounded img-shadow" alt=""></a>
+                <div class="ml-1 mt-2 ">{{ ad[0].title }}</div>
+            </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+<script src="{{ url_for('static', path='/script/flickity.js') }}"></script>
+{% endblock %}

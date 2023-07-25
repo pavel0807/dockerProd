@@ -1,0 +1,91 @@
+{% extends "templateBase.html" %}
+{% block link %}     <link rel="stylesheet" href="{{ url_for('static', path='/css/flickity.css') }}">{% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+
+<div class="container bg-white text-dark needrounded" style="border-radius: 4% !important; min-height: 50%; width: 80%; text-align: center;">
+
+  <h1 class="text-center pt-4 p-3 size-23 comedy gradient-text">Поиск</h1>
+  <div class="form-group">
+    <div class="" style="text-align: center;">
+      <input type="text"  style="width: 50%;" id="name" name="search" placeholder="Search">
+      <span><button onclick="sendSearch()" class="btn" style="background-color: rgb(3,13,40);color:white;"><i class="fa fa-search"></i></button></span>
+    </div>
+  </div>
+
+  <div class="row  p-3 ">
+
+  {% if resultSearch %}
+    {% for film in resultSearch %}
+    <div class="col-md-3 position-relative p-2">
+            <div class="oneFilm " >
+                <a href="/film/watch/{{ film[0].film_id }}"><img src="../../Img/tmpImgFilm/{{ film[0].film_id }}.png" style="border-radius: 5% !important;" class="img-fluid rounded img-shadow" alt=""></a>
+                <div class="ml-1 mt-2 ">{{ film[0].name }}</div>
+                <div class="numberCircle " style="   display: flex; position: absolute; top: 0;right: 0; margin-top: 0px;width: 40px;height: 40px;">
+                    <p style="padding: 0;margin: auto;">{{ film[0].rating }}</p>
+                </div>
+            </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <h5 style="margin: 0 auto;">К сожалению, ничего не найдено</h5>
+  {% endif %}
+  </div>
+</div>
+<script>
+  async function sendSearch() {
+
+    let search = document.getElementById("name").value;
+    console.log(search)
+    console.log(search.trim())
+    if (search.trim() != '')
+    {
+        search = search.replace(/\s/gi, "_")
+        document.location.href = document.location.href.replace("search","search/"+search);
+    }
+  }
+</script>
+{% endblock %}

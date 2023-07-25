@@ -1,0 +1,149 @@
+{% extends "templateBase.html" %}
+{% block link %}   <link rel="stylesheet" href="{{ url_for('static', path='/css/change_user.css') }}">  {% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+
+<div class="container mt-5 mb-5 border w-85 " style="background-color: rgb(232,232,232);border-radius: 10px;">
+    <div class="header pl-5 pr-5 pt-5" style="color:black;text-align: center;">
+        <h5> ДОБАВИТЬ РОЛЬ В ФИЛЬМЕ </h5>
+    </div>
+    <div class="row w-100 p-3" style="color:black;">
+        <div class="contant w-100" style="margin: 0 30%;">
+            <div class="col pt-3">
+                <h5>Введите ссылку на фильм</h5>
+                <input type="url" id="url" name="url" style="width: 100%;border-radius: 10px;background-color: rgb(217,217,217);">
+                <div class="" style="font-size: 18px;color: gray">
+                  На платформе donatteatr
+                </div>
+            </div>
+            <div class="w-100"></div>
+            <div class="col pt-3">
+              <button onclick="check()"  id="check" style="background-color: rgb(3,13,40);color:white;font-size: 20px;padding: 15px 20px;border-radius:10px">
+                Проверить
+              </button>
+            </div>
+            <div class="w-100"></div>
+            <div class="col pt-3" id="role" style="display:none;">
+              <select name="type" id="type" required="required" size="1" style="width: 80%; border-radius: 10px;background-color: rgb(217,217,217);height: 150%;">
+                  <option value=""> Роль </option>
+                  <option value="DIRECTOR">Режисер</option>
+                  <option value="PRODUCER">Продюсер</option>
+                  <option value="DIRECTOR_PRODUCER">Режисер-постановщик</option>
+                  <option value="ACTOR">Актер</option>
+                  <option value="OPERATOR">Оператор-постановщик</option>
+                  <option value="ART">Художник-постановщик</option>
+                  <option value="ART_LOOK">Художник по кастюмам</option>
+                  <option value="COMPOSER">Композитор</option>
+                  <option value="AUTHOR">Автор сценария</option>
+                  <option value="ASSISTANT_PRODUCER">Помошник режисера</option>
+                  <option value="ASSISTANT_OPERATOR">Ассистент оператора</option>
+                  <option value="GRIM">Грим</option>
+                  <option value="SOUND">Звукорежисер</option>
+                  <option value="VISUAL_EFFECTS">Художник по визуальным эффектам</option>
+                  <option value="GAFER">Гафер</option>
+                  <option value="PHOTO">Фотограф</option>
+              </select>
+            </div>
+        </div>
+    </div>
+    <div class="error" id="error" style="color:red;margin: auto;text-align: center; display: none">
+            Error: Неверная ссылка на фильм!
+    </div>
+    <div class="back  p-1" id="send" style="color:black;margin: 0 30%;text-align: center;display: none; ">
+        <button onclick="send()"  style="background-color: rgb(3,13,40);color:white;font-size: 20px;padding: 15px 20px;border-radius:10px">
+            Добавить
+        </button>
+    </div>
+</div>
+
+
+
+<script>
+
+  async function check(){
+      const url = document.getElementById('url').value;
+      console.log(url)
+    if ( url.includes(document.location.hostname)) {
+      let divButtonCheck = document.getElementById("check");
+      let divSelectRole = document.getElementById("role");
+      let divButtonSend = document.getElementById("send");
+
+      divButtonCheck.style.display = "none";
+      divSelectRole.style.display = "block";
+      divButtonSend.style.display = "block";
+    }
+    else {
+      console.log(document.location.hostname);
+      let divError = document.getElementById("error");
+      divError.style.display = "block";
+    }
+  }
+  async function send(){
+
+    let formData = new FormData();
+    // получаем введеное в поле имя и возраст
+    let url = document.getElementById("url").value;
+    const type = document.getElementById("type").value;
+
+    url = url.slice(-36);
+
+    data =  JSON.stringify({
+        url: url,
+        type: type
+    })
+    formData.append('info', data);
+
+    const response = await fetch('/author/addRole', {
+        method: 'POST',
+        body: formData,
+    });
+    if (response.ok) {
+        document.location.href = document.location.href.replace(document.location.pathname,'/main/')
+    }
+  }
+</script>
+{% endblock %}
+

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Donnateatre</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='/main.css') }}">
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Roboto'>
+    <link  href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css"  rel="stylesheet"  type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    {% block link %} {% endblock %}
+</head>
+<body class=" text-white">
+<div class="row justify-content-end pt-4  ">
+    <div class="col-5" >
+        <div class="row" style="margin: auto 0px;">
+            <div class="d-flex " style="margin: auto">
+                <div class="col-md-auto">
+                    <a class="p-2 text-white text-decoration-none about" href="/main"> <h4>Главная</h4> </a>
+                </div>
+                <div class="col-md-auto">
+                    <a class="p-2 text-white text-decoration-none about" href="/news"> <h4>Новости</h4></a>
+                </div>
+                <div class="col-md-auto">
+                    <a class="p-2 text-white text-decoration-none about" href="/fest"> <h4>Фестивали</h4> </a>
+                </div>
+                <div class="col-md-auto">
+                    <div style="text-align: center; margin-top:70%;" >
+                        <a class="p-2 text-white text-decoration-none about" href="/additional/search">
+                            <i class="fa fa-search fa-lg" ></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-4 LC">
+        <a class="p-2 text-white text-decoration-none about mb-0" id="sec-btn" href="/lk"> <h4>Личный кабинет</h4> </a>
+
+        <div class="box pt-2 pr-1 pl-1 pb-2">
+
+            {% block user_block %}
+                <div class="pb-2 d-flex" >
+                  <a class="p-2 text-white text-left" id="show-not" >УВЕДОМЛЕНИЯ</a>
+                  <div class="numberCircle" style="margin-top: 7px;">{% block countNot %} {% endblock %}</div>
+                </div>
+                <div class="pb-2">
+                  <a class="p-2 text-white text-left" href="/additional/history">ИСТОРИЯ ПРОСМОТРА</a>
+                </div>
+                <div class="pb-2">
+                  <a class="p-2 text-white text-left" href="/additional/history">ЗАКЛАДКИ</a>
+                </div>
+                <div class="pb-2">
+                  <a class="p-2 text-white text-left" href="/user/change">РЕДАКТИРОВАТЬ</a>
+                </div>
+                <div class="pb-2">
+                  <a class="p-2 text-white text-left " href="/film/add">ДОБАВИТЬ ФИЛЬМ</a>
+                </div>
+                <div class="pb-2">
+                  <a class="p-2 text-white text-left " href="/author/add_role">ДОБАВИТЬ РОЛЬ В ФИЛЬМЕ</a>
+                </div>
+            {% endblock %}
+
+            {% block author_block %}
+            <div class="pb-2">
+                <a class="p-2 text-white text-left" href="/author/change">РЕДАКТИРОВАТЬ АВТОРА</a>
+            </div>
+            <div class="pb-2">
+                <a class="p-2 text-white text-left" href="/author/change">СТАТИСТИКА</a>
+            </div>
+            {% endblock %}
+
+            <div class="pb-2">
+                <a class="p-2 text-white text-left " href="/additional/callback">СЛУЖБА ПОДДЕРЖКИ</a>
+            </div>
+            <div class="pb-2">
+                {% block enterButton %} {% endblock %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <img src="{{ url_for('static', path='/logo.png') }}" class="img-fluid" alt="" style="max-width: 40%;margin: auto;display: block;">
+</div>
+<div class="" style="position: absolute; opacity: 0.2;top:0; left: 0; z-index: -1000; padding-left: 0px;">
+    <img src="{{ url_for('static', path='/f.png') }}" alt="" style="width: 40%;height: 40%;">
+</div>
+<div class="" id="not" style=" position: absolute; top:50%; left: 0; z-index: 100; padding-left: 0px; width: 40%; height: 100%;display: none;">
+    <div class="notification px-5 pt-2 " style="margin: auto 0px;" >
+        <div class="d-flex">
+            <h1 style="text-align: center;">Уведомление</h1>
+            <div class="notification-close btn" id="close-not" style="color: white; position: absolute; top: 5%; right: 10%;">
+                X
+            </div>
+        </div>
+        <br>
+        <div class="hr"></div>
+        <div class="notification-msg">
+            {% block notifi %}
+            {% endblock %}
+            <div class="hr"></div>
+        </div>
+    </div>
+</div>
+            {% block content %}
+
+            {% endblock %}
+<script>
+    document.getElementById('close-not').onclick = function() {
+        document.getElementById('not').style.display = "none";
+    }
+    document.getElementById('show-not').onclick = function() {
+        document.getElementById('not').style.display = "block";
+    }
+
+</script>
+</body>
+</html>

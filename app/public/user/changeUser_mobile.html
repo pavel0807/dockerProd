@@ -1,0 +1,250 @@
+{% extends "templateBaseMini.html" %}
+{% block link %}   <link rel="stylesheet" href="{{ url_for('static', path='/css/change_user.css') }}">  {% endblock %}
+
+<!--- Количество уведомлений --->
+{% block countNot %} 1 {% endblock %}
+
+<!--- Если автор - статиска --->
+{% block additional1 %}
+{% if author %}
+    <div class="pb-2">
+        <a class="p-2 text-white text-left " href="/film/add">Статистика</a>
+    </div>
+    <div class="pb-2">
+        <a class="p-2 text-white text-left " href="/film/add">Изменить личную страницу</a>
+    </div>
+{% endif %}
+{% endblock %}
+
+<!--- Если  уведомлений --->
+{% block additional2 %}  {% endblock %}
+
+<!--- Количество уведомлений --->
+{% block additional3 %}  {% endblock %}
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if enter %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% endif %}
+
+{% endblock %}
+{% block notifi %}
+            <div class=" pb-2" style="position: relative;">
+                <div class="notification-text">
+                    @a.shkvts ответил(-а) на Ваш комментарий под фильмом Чебурашка
+                </div>
+                <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                    <small class="text-muted">23 мин. назад</small>
+                </div>
+            </div>
+            <div class="hr"></div>
+{% endblock %}
+{% block content %}
+<!-- Start data -->
+
+<div class="container mt-5 mb-5 border " style="background-color: rgb(232,232,232);border-radius: 10px;width: 85%;">
+    <div class="header pl-5 pr-5 pt-5" style="color:black;text-align: center;">
+        <h5> РЕДАКТИРОВАТЬ ПРОФИЛЬ </h5>
+    </div>
+    <div class="row w-100 p-3" style="color:black; margin: 0 auto;">
+        <div class="contant w-100" style="margin: 0 auto;">
+            <div class="col justify-content-center" style="margin: 0 auto;">
+                    <div class="custom-image-add">
+                        <div class="custom__image-container" style="text-align: center;" >
+                            <label id="add-img-label" for="add-single-img"><img src="{{ url_for('static', path='/film_show/img_add.png') }}" style="border-radius: 500px; min-width: 50px; max-width: 200px;min-height: 50px; max-height: 200px; "   /></label>
+                            <input type="file" id="add-single-img" accept="image/jpeg" />
+                            </div>
+                        <input type="file" id="image-input" name="photos" accept="image/jpeg"/>
+                    </div>
+                    <h5 class="px-auto" style="text-align: center; ">Добавьте обложку </h5>
+            </div>
+            <script src="../script/addPhoto.js"></script>
+            <div class="w-100"></div>
+            <div class="col pt-3">
+                <h5>Ваше имя</h5>
+                <input type="text" id="name" name="name" style="width: 100%;border-radius: 10px;background-color: rgb(217,217,217);">
+            </div>
+            <div class="w-100"></div>
+            <div class="col pt-3">
+                <h5>Ваша фамилия</h5>
+                <input type="text" id="surname" name="surname" style="width: 100%;border-radius: 10px;background-color: rgb(217,217,217);">
+            </div>
+            <div class="w-100"></div>
+            <div class="col pt-3">
+                <h5> Имя пользователя</h5>
+                <input type="text" id="login" name="login" style="width: 100%;border-radius: 10px;background-color: rgb(217,217,217);">
+            </div>
+            <div class="w-100"></div>
+            <div class="col pt-3">
+                <h5> Дата рождения</h5>
+                <input type="date" id="dataBirthday" name="dataBirthday" style="width: 100%;border-radius: 10px;background-color: rgb(217,217,217);">
+            </div>
+            <div class="w-100"></div>
+            <div class="col pt-3" >
+                <h5><a onclick="openPassword()">Изменить пароль</a> </h5>
+                <div id="changePassword" style="display: none">
+                    <div class="col pt-3">
+                        <h5>Ваш старый пароль</h5>
+                        <input type="password" id="oldPassword"  name="password" style="width: 100%;border-radius: 10px;background-color: rgb(217,217,217);">
+                    </div>
+                    <div class="w-100"></div>
+                    <div class="col pt-3">
+                        <h5>Новый пароль</h5>
+                        <input type="password" id="newPassword"  name="password" style="width: 100%;border-radius: 10px;background-color: rgb(217,217,217);">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="w-100"></div>
+        </div>
+    </div>
+    <div class="error" id="error" style="color:red;margin: auto;text-align: center; display: none">
+            Error: Неверное значение пароля
+    </div>
+    <div class="back  p-1" style="color:black;margin: 0 30%;text-align: center; ">
+        <button onclick="send()"  style="background-color: rgb(3,13,40);color:white;font-size: 20px;padding: 15px 20px;border-radius:10px">
+            Сохранить
+        </button>
+    </div>
+    <br><br>
+</div>
+
+
+
+<script>
+        const errorDiv = document.getElementById('error');
+const imgInputHelper = document.getElementById("add-single-img");
+    const imgInputHelperLabel = document.getElementById("add-img-label");
+    const imgContainer = document.querySelector(".custom__image-container");
+    const imgFiles = [];
+
+    const addImgHandler = () => {
+        const file = imgInputHelper.files[0];
+        if (!file) return;
+        // Generate img preview
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            const newImg = document.createElement("img");
+            newImg.src = reader.result;
+            newImg.style = "width: 200px;height: 200px;";
+            imgContainer.insertBefore(newImg, imgInputHelperLabel);
+        };
+        // Store img file
+        imgFiles.push(file);
+        // Reset image input
+        imgInputHelperLabel.style.display = "none";
+        return;
+    };
+    imgInputHelper.addEventListener("change", addImgHandler);
+    async function openPassword(){
+        const divChangePassword = document.getElementById("changePassword");
+        if(divChangePassword.style.display === "none") {
+            divChangePassword.style.display = "block";
+        }
+        else {
+            divChangePassword.style.display = "none";
+        }
+    }
+    async function send(){
+        console.log(imgFiles.length);
+
+        let formData = new FormData();
+        if (imgFiles.length == 0) {
+            // получаем введеное в поле имя и возраст
+            const name = document.getElementById("name").value;
+            const surname = document.getElementById("surname").value;
+            const dataBirthday = document.getElementById("dataBirthday").value;
+            const password = document.getElementById("oldPassword").value;
+            const newpassword = document.getElementById("newPassword").value;
+
+            data =  JSON.stringify({
+                name: name,
+                surname: surname,
+                dataBirthday:dataBirthday,
+                oldpassword:password,
+                newpassword:newpassword
+            })
+
+            formData.append('info', data);
+
+            const response = await fetch('/user/changeWithoutPhoto', {
+                method: 'POST',
+                body: formData,
+            });
+            if (response.ok) {
+                document.location.href = document.location.href.replace(document.location.pathname,'/main/')
+            }
+            else {
+                if (response.status === 511) {
+                    document.location.href = document.location.href.replace(document.location.pathname,"/user/activeEmail");
+                }
+                if (response.status === 512) {
+                    errorDiv.style.display = "block";
+                    errorDiv.textContent = "Если вы хотите поменять пароль, то введите новый пароль";
+                }
+                if (response.status === 513) {
+                    errorDiv.style.display = "block";
+                    errorDiv.textContent = "Если вы хотите поменять пароль, то введите ваш текущий пароль";
+                }
+                if (response.status === 514) {
+                    errorDiv.style.display = "block";
+                    errorDiv.textContent = "Вы ввели неправильный текущий пароль";
+                }
+            }
+        }
+        else {
+                for (const image of imgFiles) {
+                formData.append('imagess', image);
+                }
+
+            // получаем введеное в поле имя и возраст
+            const name = document.getElementById("name").value;
+            const surname = document.getElementById("surname").value;
+            const dataBirthday = document.getElementById("dataBirthday").value;
+            const password = document.getElementById("oldPassword").value;
+            const newpassword = document.getElementById("newPassword").value;
+
+            data =  JSON.stringify({
+                name: name,
+                surname: surname,
+                dataBirthday:dataBirthday,
+                oldpassword:password,
+                newpassword:newpassword
+            })
+
+            formData.append('info', data);
+            const response = await fetch('/user/change', {
+                method: 'POST',
+                body: formData,
+            });
+            if (response.ok) {
+                document.location.href = document.location.href.replace(document.location.pathname,'/main/')
+            }
+            else {
+                if (response.status === 511) {
+                    document.location.href = document.location.href.replace(document.location.pathname,"/user/activeEmail");
+                }
+                if (response.status === 512) {
+                    errorDiv.style.display = "block";
+                    errorDiv.textContent = "Если вы хотите поменять пароль, то введите новый пароль";
+                }
+                if (response.status === 513) {
+                    errorDiv.style.display = "block";
+                    errorDiv.textContent = "Если вы хотите поменять пароль, то введите ваш текущий пароль";
+                }
+                if (response.status === 514) {
+                    errorDiv.style.display = "block";
+                    errorDiv.textContent = "Вы ввели неправильный текущий пароль";
+                }
+            }
+        }
+
+    }
+</script>
+{% endblock %}
+

@@ -1,0 +1,106 @@
+{% extends "templateBaseMini.html" %}
+{% block link %}     <link rel="stylesheet" href="{{ url_for('static', path='/css/styleSlider.css') }}">{% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+
+<div class="container bg-white text-dark needrounded" style="border-radius: 5% !important; height: 80%; min-height: 200px;max-height: 750px; width: 90%;">
+    {% if type == "COMEDY" %}
+            <h1 class="text-center pt-4 p-3 size-20 comedy gradient-text" style="font-family: 'Mak' ,medium !important;">КОМЕДИИ</h1>
+    {% endif %}
+    {% if type == "DRAMA" %}
+            <h1 class="text-center pt-4 p-3 size-20 drama gradient-text" style="font-family: 'Journalism' ,medium !important;">ДРАМЫ</h1>
+    {% endif %}
+    {% if type == "FANTASY" %}
+            <h1 class="text-center pt-4 p-3 size-20 fantasy gradient-text" style="font-family: 'Vetka' ,medium !important;">ФАНТАСТИКА</h1>
+    {% endif %}
+    {% if type == "HORROR" %}
+            <h1 class="text-center pt-4 p-3 size-20 horror gradient-text" style="font-family: 'Genosa' ,medium !important;">УЖАСЫ</h1>
+    {% endif %}
+    {% if type == "TRILLER" %}
+            <h1 class="text-center pt-4 p-3 size-20 triller gradient-text" style="font-family: 'KiwiMaru' ,medium !important;">ТРИЛЛЕРЫ</h1>
+    {% endif %}
+    {% if type == "STUDY" %}
+            <h1 class="text-center pt-4 p-3 size-20 study gradient-text" style="font-family: 'Miratrix' ,medium !important;">СТУДЕНЧЕСКИЕ РАБОТЫ</h1>
+    {% endif %}
+    {% if type == "MELODRAMMA" %}
+            <h1 class="text-center pt-4 p-3 size-20 melodramma gradient-text" style="font-family: 'Calypso' ,medium !important;">МЕЛОДРАМЫ</h1>
+    {% endif %}
+    {% if type == "MULT" %}
+            <h1 class="text-center pt-4 p-3 size-20 mult gradient-text" style="font-family: 'BradleyHand' ,medium !important;">МУЛЬТИПЛИКАЦИЯ</h1>
+    {% endif %}
+    {% if type == "DOC" %}
+            <h1 class="text-center pt-4 p-3 size-20 doc gradient-text" style="font-family: 'Nord-Star-Deco' ,medium !important;">ДОКУМЕНТАЛЬНЫЙ</h1>
+    {% endif %}
+    {% if type == "WEB" %}
+            <h1 class="text-center pt-4 p-3 size-20 web gradient-text" style="font-family: 'Simphonia-Deco'   ,medium !important;">ВЕБ-СЕРИАЛ</h1>
+    {% endif %}
+
+    <div class="row  pr-3 pl-3 pb-3  " style="min-height: 100px;max-height: 650px; overflow: auto;">
+    {% if filmArray %}
+    {% for film in filmArray %}
+    <div class="col position-relative p-2">
+        <div class="d-flex" style="height: 100px; justify-content: space-between;">
+            <div class="img">
+                <a href="/film/p/watch/{{ film.film_id }}"><img src="../../Img/tmpImgFilm/{{ film.film_id }}.png" style="border-radius: 5% !important; height: 100px; width: 100px;" class="img-fluid rounded img-shadow" alt=""></a>
+            </div>
+            <div class="descr" style="text-align: right;">
+                <div class="ml-1 mt-2 ">{{ film.name }}</div>
+                <div class="ml-1 mt-2 "> Rating: {{ film.rating }}</div>
+                <div class="ml-1 mt-2" id="data-add"> {{ film.data_create }}</div>
+            </div>
+        </div>
+
+    </div>
+    <div class="w-100"></div>
+    <hr style="height: 2px;color: black; width: 100%;display: block;">
+
+    {% endfor %}
+    {% endif %}
+        <script>
+            let da = document.getElementById("data-add");
+            da.innerHTML
+        </script>
+{% endblock %}

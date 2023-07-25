@@ -1,0 +1,21 @@
+version: "3.0"
+services:
+  web:
+    build: .
+    container_name: donateatr
+    external_links:
+      - db_release:db_release
+    volumes:
+      - ./app:/app
+    ports:
+      - "80:80"
+  db_release:
+    container_name: db_release
+    image: postgres:13.11-alpine3.18
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5434:5432"

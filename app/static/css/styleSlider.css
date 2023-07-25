@@ -1,0 +1,59 @@
+.containers-all {
+  display: flex;
+}
+
+.container-left {
+  float: left;
+  width: 50%;
+  display: inline-block;
+}
+.container-right {
+  float: left;
+  width: 50%;
+  display: inline-block;
+}
+.slider-left {
+  float: left;
+  width: fit-content;
+  height: 750px;
+}
+.slider-right {
+  float: right;
+  width: fit-content;
+  height: 750px;
+}
+.slider_container-right{
+  position: relative;
+  width: 600px;
+  height: 100%;
+  overflow: hidden;
+}
+.slider_container-left{
+  position: relative;
+  width: 600px;
+  height: 100%;
+  overflow: hidden;
+}
+.slide-right {
+  cursor: pointer;
+  position: absolute;
+  width: 200px;
+  height: 100px;
+  background-color: white;
+  text-align: center;
+  line-height: 85px;
+  font-size: 20px;
+  transition: all 0.5s;
+}
+
+.slide-left {
+  cursor: pointer;
+  position: absolute;
+  width: 200px;
+  height: 100px;
+  background-color: white;
+  text-align: center;
+  line-height: 85px;
+  font-size: 20px;
+  transition: all 0.5s;
+}

@@ -1,0 +1,105 @@
+{% extends "templateBase.html" %}
+{% block link %}   <link rel="stylesheet" href="{{ url_for('static', path='/css/change_user.css') }}">  {% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+
+<div class="container mt-5 mb-5 border w-85 " style="background-color: rgb(232,232,232);border-radius: 10px;">
+    <div class="header pl-5 pr-5 pt-5" style="color:black;text-align: center;">
+        <h5> РЕДАКТИРОВАТЬ ПРОФИЛЬ АВТОРА</h5>
+    </div>
+    <div class="row w-100 p-3" style="color:black;">
+        <div class="contant w-100" style="margin: 0 30%;">
+            <div class="w-100"></div>
+            <div class="col pt-3">
+                <h5>Об авторе</h5>
+                <textarea name="about" id="about" cols="40" rows="10">{% if thereare %} {{ author.about_person }} {% endif %}</textarea>
+
+            </div>
+            <div class="w-100"></div>
+            <div class="col pt-3">
+                <h5>Награды</h5>
+
+                <textarea name="about" id="best" cols="40" rows="5">{% if thereare %}  {{ author.about_awards }} {% endif %}</textarea>
+                <div class="" style="font-size: 15px;color:gray">
+                    Перечислите ваши награды через точку с запятой(;)
+                </div>
+            </div>
+            <div class="w-100"></div>
+        </div>
+    </div>
+    <div class="back  p-1" style="color:black;margin: 0 30%;text-align: center; ">
+        <button onclick="send()"  style="background-color: rgb(3,13,40);color:white;font-size: 20px;padding: 15px 20px;border-radius:10px">
+            Сохранить
+        </button>
+    </div>
+    <script>
+    async function send(){
+
+    let formData = new FormData();
+        // получаем введеное в поле имя и возраст
+        const about_person = document.getElementById("about").value;
+        const about_awards = document.getElementById("best").value;
+
+        data =  JSON.stringify({
+            about_person: about_person,
+            about_awards: about_awards
+        })
+
+        formData.append('info', data);
+
+        const response = await fetch('/author/change', {
+            method: 'POST',
+            body: formData,
+        });
+        if (response.ok) {
+            document.location.href = document.location.href.replace(document.location.pathname,'/main/')
+        }
+    }
+    </script>
+</div>
+
+{% endblock %}
+

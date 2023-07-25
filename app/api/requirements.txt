@@ -1,0 +1,8 @@
+db==0.1.1
+fastapi==0.100.0
+hashing==0.0.1
+pydantic==1.10.7
+python_jose==3.3.0
+security==1.0.1
+SQLAlchemy==1.4.45
+starlette==0.30.0

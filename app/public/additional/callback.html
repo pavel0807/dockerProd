@@ -1,0 +1,68 @@
+{% extends "templateBase.html" %}
+{% block link %}     <link rel="stylesheet" href="{{ url_for('static', path='/css/flickity.css') }}">{% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+
+<div class="container bg-white text-dark needrounded" style="border-radius: 4% !important; min-height: 50%; width: 80%; text-align: center;">
+
+    <h1 class="text-center pt-4 p-3 size-23 comedy gradient-text">Служба поддержки</h1>
+    <div class="pb-4" style="margin: auto 0;width: 100%; ">
+        <div style="margin: 0 auto;">
+            <input type="email" placeholder="Введите ваш email" style="width: 30%;">
+        </div>
+        <div class="pt-5">
+            <textarea placeholder="Введите ваше обращение" name="message"  style="height: 30%;width: 50%;"> </textarea>
+        </div>
+        <div class="pt-2" >
+            <button onclick="sendCallback()"  style="background-color: rgb(3,13,40);color:white;font-size: 20px;padding: 15px 20px;border-radius:10px">
+                Отправить
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- End data -->
+{% endblock %}

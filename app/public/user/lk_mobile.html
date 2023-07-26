@@ -84,6 +84,40 @@
             </a>
         </div>
         <div class="w-100"></div>
+                <hr style="height: 2px;color: black; width: 100%;display: block;">
+        <div class="col position-relative p-2">
+            <a href="/author/p/add_role">
+                <div class="" style="height: 25px; ">
+                    <h5>Добавить роль в фильме</h5>
+                </div>
+            </a>
+        </div>
+
+
+            {% if dictStatus['is_author'] %}
+        <div class="w-100"></div>
+                <hr style="height: 2px;color: black; width: 100%;display: block;">
+        <div class="col position-relative p-2">
+            <a href="/author/p/change">
+                <div class="" style="height: 25px; ">
+                    <h5>Изменить информацию</h5>
+                </div>
+            </a>
+        </div>
+        <div class="w-100"></div>
+                        <hr style="height: 2px;color: black; width: 100%;display: block;">
+        <div class="col position-relative p-2">
+            <a href="/">
+                <div class="" style="height: 25px; ">
+                    <h5>Статистика</h5>
+                </div>
+            </a>
+        </div>
+        <div class="w-100"></div>
+            {% endif %}
+
+
+
         <hr style="height: 2px;color: black; width: 100%;display: block;">
         <div class="col position-relative p-2">
             <a href="/additional/p/callback">

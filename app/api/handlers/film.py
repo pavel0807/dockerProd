@@ -61,6 +61,35 @@ async def registration(request: Request, db: AsyncSession = Depends(get_db)):
     else:
         return templates.TemplateResponse("auth/login.html", {"request": request,"dictStatus":dictStatus})
 
+@film_router.get("/p/add")
+async def registration(request: Request, db: AsyncSession = Depends(get_db)):
+    dictStatus = {"is_log": False, "is_author": False, "notification": list()}
+    if request.cookies.get('auth'):
+        jwt = request.cookies.get('auth')
+        try:
+            user = await get_current_user_from_token(jwt, db)
+            if user is not None:
+                user_status = await _get_status_user(user.user_id, db)
+                user_notification = await _get_notification_for_user(user.user_id, db)
+                dictStatus = {"is_log": True, "is_author": user_status, "notification": user_notification}
+        except:
+            dictStatus = {"is_log": False, "is_author": False, "notification": list()}
+            pass
+    if request.cookies.get('auth'):
+        jwt = request.cookies.get('auth')
+        try:
+            user = await get_current_user_from_token(jwt,db)
+        except:
+            return templates.TemplateResponse("auth/login_mobile.html", {"request": request,"dictStatus":dictStatus})
+        if user is None:
+            return templates.TemplateResponse("auth/login_mobile.html", {"request": request,"dictStatus":dictStatus})
+        else :
+            return templates.TemplateResponse("film/add_film_mobile.html", {"request": request,"dictStatus":dictStatus})
+    else:
+        return templates.TemplateResponse("auth/login_mobile.html", {"request": request,"dictStatus":dictStatus})
+
+
+
 #list[UploadFile]
 @film_router.post("/add")
 #TODO::ПРОВЕРКА ПАРАМЕТРОВ НА JS

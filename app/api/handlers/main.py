@@ -2,6 +2,7 @@ import uuid
 
 from fastapi import Request, UploadFile
 from fastapi import Depends
+from fastapi.responses import StreamingResponse
 from fastapi import HTTPException, Form
 from fastapi.responses import HTMLResponse
 
@@ -11,7 +12,7 @@ from api.actions.auth import enter_or_not,get_current_user_from_token
 from api.actions.film import _create_new_film,_get_film_by_uuid,_get_15_new_film
 from api.actions.additional import _get_best_view,_get_notification_for_user
 from api.actions.user import _get_status_user
-
+from fastapi import Response
 from fastapi.responses import RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -137,3 +138,9 @@ async def get_one_of_type(type_film: str, request: Request, db: AsyncSession = D
     for film in needed_film:
         listFilm.append((film[0]))
     return templates.TemplateResponse("film/showOneType_mobile.html",{"request": request,"dictStatus":dictStatus,"type":type_film,"filmArray":listFilm})
+
+
+@main_router.get("/doc")
+async def get_doc():
+    headers = {'Content-Disposition': 'inline; filename="sample.pdf"',"content-type": "application/octet-stream"}
+    return StreamingResponse("doc/license.docx",media_type='application/pdf',headers=headers)

@@ -12,21 +12,21 @@ from sqlalchemy.orm import declarative_base
 Base = declarative_base()
 class TypeOfAuthor(enum.Enum):
     DIRECTOR = "DIRECTOR"    #режисер
-    PRODUCER = "PRODUCER"   #продюсер
-    DIRECTOR_PRODUCER = "DIRECTOR_PRODUCER" #режисер-постановщик
-    ACTOR = "ACTOR" #актер
-    OPERATOR = "OPERATOR"       #оператор-постановщик
-    ART = "ART"     #художник-постановщик
-    ART_LOOK = "ART_LOOK"    #художник по кастюмам
-    COMPOSER = "COMPOSER"    #композитор
-    AUTHOR = "AUTHOR"    #автор сценария
-    ASSISTANT_PRODUCER = "ASSISTANT_PRODUCER"    #помошник режисера
-    ASSISTANT_OPERATOR = "ASSISTANT_OPERATOR"    #ассистент оператора
-    GRIM = "GRIM"    #грим
-    SOUND = "SOUND"    #звукорежисер
-    VISUAL_EFFECTS = "VISUAL_EFFECTS"    #художник по визуальным эффектам
-    GAFER = "GAFER"    #гафер
-    PHOTO = "PHOTO"    #фотограф
+    PRODUCER = "PRODUCER"
+    DIRECTOR_PRODUCER = "DIRECTOR_PRODUCER"
+    HELP_PRODUCER = "HELP_PRODUCER"
+    MAIN_ACTOR = "MAIN_ACTOR"
+    ACTOR = "ACTOR"
+    OPERATOR = "OPERATOR"
+    HELP_OPERATOR = "HELP_OPERATOR"
+    AUTHOR = "AUTHOR"
+    ART_OPERATOR = "ART_OPERATOR"
+    WEAR_OPERATOR = "WEAR_OPERATOR"
+    GRIM = "GRIM"
+    VISUAL_EFFECTS = "VISUAL_EFFECTS"
+    SOUND = "SOUND"
+    HELP_AUTHOR = "HELP_AUTHOR"
+    ASSISTANT_PRODUCER = "ASSISTANT_PRODUCER"
 
 class Author(Base):
     __tablename__ = "author"

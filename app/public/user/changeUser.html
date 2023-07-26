@@ -1,47 +1,48 @@
 {% extends "templateBase.html" %}
 {% block link %}   <link rel="stylesheet" href="{{ url_for('static', path='/css/change_user.css') }}">  {% endblock %}
-
 <!--- Количество уведомлений --->
-{% block countNot %} 1 {% endblock %}
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
 
-<!--- Если автор - статиска --->
-{% block additional1 %}
-{% if author %}
-    <div class="pb-2">
-        <a class="p-2 text-white text-left " href="/film/add">Статистика</a>
-    </div>
-    <div class="pb-2">
-        <a class="p-2 text-white text-left " href="/film/add">Изменить личную страницу</a>
-    </div>
-{% endif %}
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
 {% endblock %}
 
-<!--- Если  уведомлений --->
-{% block additional2 %}  {% endblock %}
 
-<!--- Количество уведомлений --->
-{% block additional3 %}  {% endblock %}
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
 
 <!--- Кнопка войти/выйти --->
 {% block enterButton %}
-{% if enter %}
-<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
-{% else %}
+{% if dictStatus['is_log'] %}
 <a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
 {% endif %}
+{% endblock %}
 
-{% endblock %}
 {% block notifi %}
-            <div class=" pb-2" style="position: relative;">
-                <div class="notification-text">
-                    @a.shkvts ответил(-а) на Ваш комментарий под фильмом Чебурашка
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
                 </div>
-                <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
-                    <small class="text-muted">23 мин. назад</small>
-                </div>
-            </div>
-            <div class="hr"></div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
 {% endblock %}
+
 {% block content %}
 <!-- Start data -->
 

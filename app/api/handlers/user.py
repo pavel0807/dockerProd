@@ -141,6 +141,9 @@ async def login(request: Request, db: AsyncSession = Depends(get_db)):
         if user is None:
             return templates.TemplateResponse("auth/login_mobile.html", {"request": request,"dictStatus":dictStatus})
         else :
+            user_status = await _get_status_user(user.user_id, db)
+            user_notification = await _get_notification_for_user(user.user_id, db)
+            dictStatus = {"is_log": True, "is_author": user_status, "notification": user_notification}
             return templates.TemplateResponse("user/lk_mobile.html", {"request": request, "dictStatus": dictStatus})
     return templates.TemplateResponse("auth/login_mobile.html", {"request": request,"dictStatus":dictStatus})
 

@@ -1,0 +1,204 @@
+{% extends "templateBaseMini.html" %}
+{% block link %}    {% endblock %}
+
+{% block content %}
+<!-- Start data -->
+<div class="container mt-5 mb-5 border w-85 " style="border-radius: 10px;border-color:rgb(107,76,59) !important; width: 90%;margin: 0 auto;">
+
+    <div class="row mt-2">
+        <div class="col" style="width: 50%;margin: 0 auto;">
+            <div class="custom-image-add">
+                <div class="custom__image-container" style="width: 100%;height: 90%;background-color:rgb(2,12,37);border: 0; ">
+                    <label id="add-img-label" for="add-single-img"><img src="../../static/film_add/img_add.png" style="width: 100%;height: 100%;"/></label>
+                    <input type="file" id="add-single-img" accept="image/jpeg" />
+                </div>
+                <input type="file" id="image-input" name="photos" accept="image/jpeg"/>
+            </div>
+            <h5 class="px-auto" style="text-align: center;">Добавьте обложку</h5>
+        </div>
+        <div class="w-100"></div>
+        <div class="col">
+            <div class="row" style="margin: 0 auto;text-align: center">
+                <div class="col">
+                    <input type="text" id="name" placeholder="Название фильма" name="name" style="width: 80%;border-radius: 10px;background-color: rgb(217,217,217);height: 150%; ">
+                </div>
+                <div class="w-100"></div>
+                <div class="col mt-5">
+                    <select name="type" id="type" required="required" size="1" style="width: 80%; border-radius: 10px;background-color: rgb(217,217,217);height: 150%;">
+                        <option value=""> Жанр </option>
+                        <option value="COMEDY">Комедия</option>
+                        <option value="DRAMA">Драма</option>
+                        <option value="FANTASY">Фэнтези</option>
+                        <option value="HORROR">Ужасы</option>
+                        <option value="TRILLER">Триллер</option>
+                        <option value="STUDY">Студентческий</option>
+                        <option value="MELODRAMMA">Мелодрама</option>
+                        <option value="MULT">Мультики</option>
+                        <option value="WEB">Web-сериал</option>
+                        <option value="DOC">Документальный</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="w-100 mt-5"></div>
+        <div class="col" style="margin: 0 auto;text-align: center;">
+            <h5 class="px-auto pt-1" style="text-align: center;">Возрастные ограничения</h5>
+            <div class="">
+                <input type="radio" name="age" id="0+" class="input-hidden 0+ " />
+                <label for="0+" class="pr-2"><img src="../../static/film_add/0+_no.png"  /></label>
+
+                <input type="radio" name="age" id="6+" class="input-hidden 6+ " />
+                <label for="6+" class="pr-2"><img src="../../static/film_add/6+_no.png"  /></label>
+
+                <input type="radio" name="age" id="12+" class="input-hidden 12+" />
+                <label for="12+" class="pr-2"><img src="../../static/film_add/12+_no.png"  /></label>
+
+                <input type="radio" name="age" id="16+" class="input-hidden 16+" />
+                <label for="16+" class="pr-2"><img src="../../static/film_add/16+_no.png"  /></label>
+
+                <input type="radio" name="age" id="18+" class="input-hidden 18+" />
+                <label for="18+"><img src="../../static/film_add/18+_no.png"  /></label>
+            </div>
+        </div>
+        <div class="w-100"></div>
+        <div class="col pt-2" style="margin: 0 auto;text-align: center;">
+            <input type="text" id="description" placeholder="Описание фильма" name="description" style="width: 80%;border-radius: 10px;background-color: rgb(217,217,217);height: 200%;">
+        </div>
+        <div class="w-100 mt-5" ></div>
+        <div class="col pt-2" style="margin: 0 auto;text-align: center;">
+            <h5 class="px-auto pt-1" style="text-align: center;">Год создания</h5>
+                <div>
+                    <select name="year" id="year" required="required" size="1" style="width: 100%; border-radius: 10px;background-color: rgb(217,217,217);height: 200%;">
+                        <option value=""> Год </option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                        <option value="2018">2018</option>
+                        <option value="2017">2017</option>
+                        <option value="2016">2016</option>
+                        <option value="2015">2015</option>
+                        <option value="2014">2014</option>
+                        <option value="2013">2013</option>
+                        <option value="2012">2012</option>
+                        <option value="2011">2011</option>
+                        <option value="2010">2010</option>
+                        <option value="2009">2009</option>
+                        <option value="2008">2008</option>
+                    </select>
+                </div>
+        </div>
+        <div class="w-100"></div>
+        <div class="col pt-4" style="margin: 0 auto;text-align: center;">
+            <input type="url" id="url" placeholder="Ссылка на фильм" name="url" style="width: 80%;border-radius: 10px;background-color: rgb(217,217,217);height: 100%;">
+            <small>Поддерживаются следующие платформы: Rutube, Youtube, VK</small>
+        </div>
+        <div class="w-100 mt-5"></div>
+    </div>
+
+    <div class="p-1 pb-3" style="width: 100%; color:black;margin: 0 auto;text-align: center; ">
+        <button type="submit" name="public" onclick="send()" disabled style="width: 45%;height: 30%;background-color:rgb(2,12,37);border: 0; "><img src="../../static/film_add/button_add.png" alt="" style="width: 100%;height: 100%;"></button>
+        <div class="d-flex">
+            <p class="pt-2 pr-1" style="color: white">Подтверждаю,что авторские права принадлежат мне</p>
+            <input type="checkbox" id="politics" onclick="check();" value="" autocomplete="off" style="width: 5%;"/>
+        </div>
+    </div>
+</div>
+<script>
+    const imgInputHelper = document.getElementById("add-single-img");
+    const imgInputHelperLabel = document.getElementById("add-img-label");
+    const imgContainer = document.querySelector(".custom__image-container");
+    const imgFiles = [];
+
+    const addImgHandler = () => {
+        const file = imgInputHelper.files[0];
+        if (!file) return;
+        // Generate img preview
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            const newImg = document.createElement("img");
+            newImg.src = reader.result;
+            newImg.style = "width: 200px;height: 200px;";
+            imgContainer.insertBefore(newImg, imgInputHelperLabel);
+        };
+        // Store img file
+        imgFiles.push(file);
+        // Reset image input
+        imgInputHelperLabel.style.display = "none";
+        return;
+    };
+    imgInputHelper.addEventListener("change", addImgHandler);
+    function check() {
+        var submit = document.getElementsByName('public')[0];
+        if (document.getElementById('politics').checked)
+            submit.disabled = '';
+        else
+            submit.disabled = 'disabled';
+    }
+
+    async function send() {
+        if (document.getElementById('politics').checked) {
+            // получаем введеное в поле имя и возраст
+            let formData = new FormData();
+
+
+            for (const image of imgFiles) {
+                formData.append('imagess', image);
+            }
+
+            const nameFilm = document.getElementById("name").value;
+            const typeFilm = document.getElementById("type").value;
+            const yearFilm = document.getElementById("year").value;
+            const urlFilm = document.getElementById("url").value;
+            const descriptionFilm = document.getElementById("description").value;
+            const file_to_img = formData;
+            var ageRestriction = document.querySelector('input[name="age"]:checked').id;
+            if (ageRestriction === "0+") {
+                ageRestriction = "Age";
+            }
+            if (ageRestriction === "6+") {
+                ageRestriction = "Kids";
+            }
+            if (ageRestriction === "12+") {
+                ageRestriction = "Children";
+            }
+            if (ageRestriction === "16+") {
+                ageRestriction = "Body";
+            }
+            if (ageRestriction === "18+") {
+                ageRestriction = "Big";
+            }
+            console.log(ageRestriction);
+            let d = [nameFilm,descriptionFilm,urlFilm,"0",typeFilm,ageRestriction,yearFilm,yearFilm]
+            var D = JSON.stringify({
+                    name:nameFilm,
+                    description:descriptionFilm,
+                    url:urlFilm,
+                    rating:"0",
+                    type_of_film:typeFilm,
+                    age_restriction:ageRestriction,
+                    data_create:yearFilm,
+                    data_add:yearFilm
+                })
+            //formData.append('name', nameFilm);
+            //formData.append('description', descriptionFilm);
+            // formData.append('url', urlFilm);
+            //formData.append('rating', "0");
+            //formData.append('type_of_film', typeFilm);
+            //formData.append('age_restriction', ageRestriction);
+            //formData.append('data_create', yearFilm);
+            //formData.append('data_add', yearFilm);
+            formData.append('info', D);
+            const response = await fetch('/film/add', {
+                method: 'POST',
+                body: formData,
+            });
+        if (response.ok) {
+            document.location.href = document.location.href.replace("/film/add", "/main");
+        }
+        }
+    }
+</script>
+{% endblock %}

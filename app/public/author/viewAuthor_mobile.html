@@ -1,54 +1,13 @@
-{% extends "templateBase.html" %}
+{% extends "templateBaseMini.html" %}
 {% block link %}<link rel="stylesheet" href="{{ url_for('static', path='/css/donateAlert.css') }}">   <link rel="stylesheet" href="{{ url_for('static', path='/css/viewAuthor.css') }}">  {% endblock %}
 <!--- Количество уведомлений --->
-{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
-
-<!--- Если автор показать блок уведомлений --->
-{% block user_block %}
-    {% if dictStatus['is_log'] %}
-         {{ super() }}
-    {% endif %}
-{% endblock %}
-
-
-{% block author_block %}
-    {% if dictStatus['is_author'] %}
-         {{ super() }}
-    {% endif %}
-{% endblock %}
-
-
-<!--- Кнопка войти/выйти --->
-{% block enterButton %}
-{% if dictStatus['is_log'] %}
-<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
-{% else %}
-<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
-{% endif %}
-{% endblock %}
-
-{% block notifi %}
-{% if dictStatus['notification'] %}
-    {% for noti in dictStatus['notification'] %}
-                <div class=" pb-2" style="position: relative;">
-                    <div class="notification-text">
-                        {{ noti[0].description }}
-                    </div>
-                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
-                        <small class="text-muted">{{ noti[0].date }}</small>
-                    </div>
-                </div>
-                <div class="hr"></div>
-    {% endfor %}
-{% endif %}
-{% endblock %}
 
 {% block content %}
         <!-- Закладка -->
             <div id= "dialog-container" class= "dialog-container">
                 <div class= "dialog-header">Донат</div>
                 <div class= "" id="film_id_none" style="display: none;">{{user.user_id}}</div>
-                <div id= "dialog-body" class= "dialog-body">Пожалуйста, не изменяйте комментарий к оплате</div>
+                <div id= "dialog-body" class= "dialog-body"> Пожалуйста, не изменяйте комментарий к оплате</div>
                 <div class= "dialog-footer">
                     <a onclick= "CustomAlert.red()" style="color: goldenrod;">Понятно</a>
                     <a onclick= "CustomAlert.close()" style="color: goldenrod;">Выйти</a>
@@ -57,14 +16,14 @@
 <!-- Start data -->
 <div class="container mt-5 mb-5 w-100 " >
     <!-- Главная таблциа -->
-    <div class="row mt-5 mr-5 ml-5 mb-5 h-80">
+    <div class="row " style="width: 95%;margin: 0 auto;">
         <!-- Фото автора + донат -->
-        <div class="col-5 px-2">
+        <div class="col">
             <!-- Фото и имя -->
             <div class="px-5 mx-3" style="text-align: center;">
                 <div class=" border w-80 " style="border-radius: 10px;border-color:rgb(107,76,59) !important;">
                     <div class="pt-4 pb-4 " style="">
-                        <img src="../../Img/tmpImgUser/{{ user.user_id }}.png" alt="" class="round" style="width: 200px;height: 200px;">
+                        <img src="../../../Img/tmpImgUser/{{ user.user_id }}.png" alt="" class="round" style="width: 200px;height: 200px;">
                     </div>
                     <div class="pt-2 pb-5" style="text-align: center">
                         <h4>{{ user.name }} {{ user.surname }}</h4>
@@ -73,7 +32,7 @@
                 </div>
             </div>
             <!-- Донат -->
-            <div class="px-5 pt-5 mx-5">
+            <div class="pt-5 mx-3">
                 <div class="col d-flex mx-auto">
                     <input type="range" min="1" max="1000" data-slider-id="count_slider" value="50" class="slider " id="count_donat" oninput="fun1()">
                 </div>
@@ -81,7 +40,7 @@
                 <div class="col mx-auto d-flex mt-4">
                     <span class="input_RU mx-auto"><input type="text" class="mx-auto" id="enter_count_donat" placeholder="50"></span>
                 </div>
-                <div class="mx-auto  py-4 px-3 " onclick="CustomAlert.show('{{user.user_id}}')">
+                <div class="mx-4  py-4 px-3 " onclick="CustomAlert.show('{{user.user_id}}')">
                     <img src="{{ url_for('static', path='/film_show/donatebutton.png') }}" alt="" style="width: 100%;height: 70px;">
                 </div>
                 <div class="d-flex">
@@ -111,6 +70,7 @@
                     window.location.href = url;
 
                     }
+
                     this.close = function() {
                         container.style.top = '-30%';
                         container.style.opacity = 0;
@@ -120,18 +80,19 @@
             </div>
             <script src="{{ url_for('static', path='/script/film_show.js') }}"></script>
         </div>
+        <div class="w-100"></div>
         <!-- Инфо + фильмы -->
-        <div class="col-7">
+        <div class="col" style="margin: 0 auto;">
             <!-- О персоне -->
             <div>
-                <h4 class="pb-2" style="text-indent: 30px;" >О персоне</h4>
+                <h4 class="pb-2 pt-3" style="text-indent: 30px; text-align: center" >О персоне</h4>
                 <p style="text-indent: 40px;line-height: 180%;">
                     {{ aboutAuthor.about_person }}
                 </p>
             </div>
             <!-- Награды -->
             <div>
-                <h4 class="pb-2" style="text-indent: 30px;">Награды</h4>
+                <h4 class="pb-2" style="text-indent: 30px;text-align: center"">Награды</h4>
                 <ul style="line-height: 180%;">
                     {% for award in awards %}
                     <li> {{ award }}</li>
@@ -141,14 +102,14 @@
             <!-- Работы -->
             {% if dictFilm %}
             <div>
-                <h4 class="pb-2" style="text-indent: 30px;">Работы</h4>
+                <h4 class="pb-2" style="text-indent: 30px;text-align: center">Работы</h4>
 
-                <div class="ml-5">
-                    {% for key,value in dictFilm.items() %}
-                        <button class="btn btnName" id="{{ key }}-btn" onclick="show('{{ key }}')" > {{ key }} </button>
-                    {% endfor %}
+                <div class="" style="margin: 0 auto;display: inline-block;">
+                        {% for key,value in dictFilm.items() %}
+                            <button  class="btn btnName" id="{{ key }}-btn" onclick="show('{{ key }}')" > {{ key }} </button>
+                        {% endfor %}
                 </div>
-                <div  class="all-content pt-2" id="content">
+                <div  class="all-content pt-2 pb-4" id="content">
                 {% for key,value in dictFilm.items() %}
                     <div class="disp-1" id="{{ key }}-div" style="{% if not loop.first %} display:none; {% endif %}">
                         {% for v in value %}
@@ -171,10 +132,10 @@
     async function hideAll() {
         var divsToHide = document.getElementsByClassName("disp-1"); //divsToHide is an array
         for(var i = 0; i < divsToHide.length; i++){
+
             divsToHide[i].style.display = "none"; // depending on what you're doing
-        }
-    }
-     async function changeButton() {
+        } }
+    async function changeButton() {
         console.log("dsada");
         var ButtonInner = document.getElementsByClassName("btnName");
         console.log(ButtonInner);

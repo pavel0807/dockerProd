@@ -1,0 +1,298 @@
+230726181619615358,pg_dump: last built-in OID is 16383
+
+230726181619620847,pg_dump: reading extensions
+
+230726181619624402,pg_dump: identifying extension members
+
+230726181619630706,pg_dump: reading schemas
+
+230726181619637345,pg_dump: reading user-defined tables
+
+230726181619686557,pg_dump: reading user-defined functions
+
+230726181619699653,pg_dump: reading user-defined types
+
+230726181619728508,pg_dump: reading procedural languages
+
+230726181619730136,pg_dump: reading user-defined aggregate functions
+
+230726181619731744,pg_dump: reading user-defined operators
+
+230726181619736384,pg_dump: reading user-defined access methods
+
+230726181619737285,pg_dump: reading user-defined operator classes
+
+230726181619738495,pg_dump: reading user-defined operator families
+
+230726181619742316,pg_dump: reading user-defined text search parsers
+
+230726181619745558,pg_dump: reading user-defined text search templates
+
+230726181619748082,pg_dump: reading user-defined text search dictionaries
+
+230726181619750386,pg_dump: reading user-defined text search configurations
+
+230726181619752547,pg_dump: reading user-defined foreign-data wrappers
+
+230726181619755373,pg_dump: reading user-defined foreign servers
+
+230726181619757565,pg_dump: reading default privileges
+
+230726181619759715,pg_dump: reading user-defined collations
+
+230726181619770827,pg_dump: reading user-defined conversions
+
+230726181619775445,pg_dump: reading type casts
+
+230726181619776524,pg_dump: reading transforms
+
+230726181619776948,pg_dump: reading table inheritance information
+
+230726181619777710,pg_dump: reading event triggers
+
+230726181619779641,pg_dump: finding extension tables
+
+230726181619786179,pg_dump: finding inheritance relationships
+
+230726181619786315,pg_dump: reading column info for interesting tables
+
+230726181619786356,pg_dump: finding the columns and types of table "public.users"
+
+230726181619788476,pg_dump: finding the columns and types of table "public.Film"
+
+230726181619789501,pg_dump: finding the columns and types of table "public.Comment"
+
+230726181619790450,pg_dump: finding the columns and types of table "public.author"
+
+230726181619791447,pg_dump: finding the columns and types of table "public.authorAbout"
+
+230726181619792453,pg_dump: finding the columns and types of table "public.News_Ad"
+
+230726181619793380,pg_dump: finding the columns and types of table "public.countViewFilm"
+
+230726181619794303,pg_dump: finding the columns and types of table "public.historyViewUser"
+
+230726181619795192,pg_dump: finding the columns and types of table "public.notification"
+
+230726181619796172,pg_dump: finding the columns and types of table "public.bookmarkUser"
+
+230726181619797155,pg_dump: finding the columns and types of table "public.Fest_AD"
+
+230726181619798145,pg_dump: finding the columns and types of table "public.ratingUser"
+
+230726181619799109,pg_dump: flagging inherited columns in subtables
+
+230726181619799167,pg_dump: reading indexes
+
+230726181619799204,pg_dump: reading indexes for table "public.users"
+
+230726181619804973,pg_dump: reading indexes for table "public.Film"
+
+230726181619807072,pg_dump: reading indexes for table "public.Comment"
+
+230726181619808999,pg_dump: reading indexes for table "public.author"
+
+230726181619811110,pg_dump: reading indexes for table "public.authorAbout"
+
+230726181619812989,pg_dump: reading indexes for table "public.News_Ad"
+
+230726181619814753,pg_dump: reading indexes for table "public.countViewFilm"
+
+230726181619816496,pg_dump: reading indexes for table "public.historyViewUser"
+
+230726181619818145,pg_dump: reading indexes for table "public.notification"
+
+230726181619819905,pg_dump: reading indexes for table "public.bookmarkUser"
+
+230726181619821752,pg_dump: reading indexes for table "public.Fest_AD"
+
+230726181619823454,pg_dump: reading indexes for table "public.ratingUser"
+
+230726181619825231,pg_dump: flagging indexes in partitioned tables
+
+230726181619825296,pg_dump: reading extended statistics
+
+230726181619827592,pg_dump: reading constraints
+
+230726181619827667,pg_dump: reading foreign key constraints for table "public.ratingUser"
+
+230726181619828874,pg_dump: reading triggers
+
+230726181619829015,pg_dump: reading triggers for table "public.ratingUser"
+
+230726181619830105,pg_dump: reading rewrite rules
+
+230726181619832771,pg_dump: reading policies
+
+230726181619832892,pg_dump: reading row security enabled for table "public.users"
+
+230726181619832936,pg_dump: reading policies for table "public.users"
+
+230726181619835983,pg_dump: reading row security enabled for table "public.Film"
+
+230726181619836043,pg_dump: reading policies for table "public.Film"
+
+230726181619836681,pg_dump: reading row security enabled for table "public.Comment"
+
+230726181619836726,pg_dump: reading policies for table "public.Comment"
+
+230726181619837230,pg_dump: reading row security enabled for table "public.author"
+
+230726181619837276,pg_dump: reading policies for table "public.author"
+
+230726181619837760,pg_dump: reading row security enabled for table "public.authorAbout"
+
+230726181619837807,pg_dump: reading policies for table "public.authorAbout"
+
+230726181619838351,pg_dump: reading row security enabled for table "public.News_Ad"
+
+230726181619838400,pg_dump: reading policies for table "public.News_Ad"
+
+230726181619838896,pg_dump: reading row security enabled for table "public.countViewFilm"
+
+230726181619838940,pg_dump: reading policies for table "public.countViewFilm"
+
+230726181619839418,pg_dump: reading row security enabled for table "public.historyViewUser"
+
+230726181619839467,pg_dump: reading policies for table "public.historyViewUser"
+
+230726181619839959,pg_dump: reading row security enabled for table "public.notification"
+
+230726181619839999,pg_dump: reading policies for table "public.notification"
+
+230726181619840459,pg_dump: reading row security enabled for table "public.bookmarkUser"
+
+230726181619840499,pg_dump: reading policies for table "public.bookmarkUser"
+
+230726181619840978,pg_dump: reading row security enabled for table "public.Fest_AD"
+
+230726181619841027,pg_dump: reading policies for table "public.Fest_AD"
+
+230726181619841553,pg_dump: reading row security enabled for table "public.ratingUser"
+
+230726181619841593,pg_dump: reading policies for table "public.ratingUser"
+
+230726181619842098,pg_dump: reading publications
+
+230726181619844647,pg_dump: reading publication membership
+
+230726181619846691,pg_dump: reading subscriptions
+
+230726181619852781,pg_dump: reading dependency data
+
+230726181619863925,pg_dump: saving encoding = UTF8
+
+230726181619863997,pg_dump: saving standard_conforming_strings = on
+
+230726181619864423,pg_dump: saving search_path = 
+
+230726181619888558,pg_dump: creating SCHEMA "public"
+
+230726181619888623,pg_dump: creating COMMENT "SCHEMA public"
+
+230726181619888652,pg_dump: creating TYPE "public.AgeRestriction"
+
+230726181619888666,pg_dump: creating TYPE "public.TypeOfAuthor"
+
+230726181619888678,pg_dump: creating TYPE "public.TypeOfFilm"
+
+230726181619888690,pg_dump: creating FUNCTION "public.change_mark()"
+
+230726181619888706,pg_dump: creating FUNCTION "public.check_mark()"
+
+230726181619888719,pg_dump: creating TABLE "public.Comment"
+
+230726181619888730,pg_dump: creating TABLE "public.Fest_AD"
+
+230726181619888741,pg_dump: creating TABLE "public.Film"
+
+230726181619888752,pg_dump: creating TABLE "public.News_Ad"
+
+230726181619888764,pg_dump: creating TABLE "public.author"
+
+230726181619888775,pg_dump: creating TABLE "public.authorAbout"
+
+230726181619888786,pg_dump: creating TABLE "public.bookmarkUser"
+
+230726181619888797,pg_dump: creating TABLE "public.countViewFilm"
+
+230726181619888808,pg_dump: creating TABLE "public.historyViewUser"
+
+230726181619888819,pg_dump: creating TABLE "public.notification"
+
+230726181619888830,pg_dump: creating TABLE "public.ratingUser"
+
+230726181619888841,pg_dump: creating TABLE "public.users"
+
+230726181619888853,pg_dump: processing data for table "public.Comment"
+
+230726181619888893,pg_dump: dumping contents of table "public.Comment"
+
+230726181619889624,pg_dump: processing data for table "public.Fest_AD"
+
+230726181619889658,pg_dump: dumping contents of table "public.Fest_AD"
+
+230726181619891085,pg_dump: processing data for table "public.Film"
+
+230726181619892593,pg_dump: dumping contents of table "public.Film"
+
+230726181619892637,pg_dump: processing data for table "public.News_Ad"
+
+230726181619892731,pg_dump: dumping contents of table "public.News_Ad"
+
+230726181619893530,pg_dump: processing data for table "public.author"
+
+230726181619893561,pg_dump: dumping contents of table "public.author"
+
+230726181619893981,pg_dump: processing data for table "public.authorAbout"
+
+230726181619894002,pg_dump: dumping contents of table "public.authorAbout"
+
+230726181619894259,pg_dump: processing data for table "public.bookmarkUser"
+
+230726181619894286,pg_dump: dumping contents of table "public.bookmarkUser"
+
+230726181619894514,pg_dump: processing data for table "public.countViewFilm"
+
+230726181619894542,pg_dump: dumping contents of table "public.countViewFilm"
+
+230726181619894911,pg_dump: processing data for table "public.historyViewUser"
+
+230726181619894934,pg_dump: dumping contents of table "public.historyViewUser"
+
+230726181619895721,pg_dump: processing data for table "public.notification"
+
+230726181619895741,pg_dump: dumping contents of table "public.notification"
+
+230726181619896090,pg_dump: processing data for table "public.ratingUser"
+
+230726181619896116,pg_dump: dumping contents of table "public.ratingUser"
+
+230726181619896981,pg_dump: processing data for table "public.users"
+
+230726181619897010,pg_dump: dumping contents of table "public.users"
+
+230726181619897464,pg_dump: creating CONSTRAINT "public.Comment Comment_pkey"
+
+230726181619897490,pg_dump: creating CONSTRAINT "public.Fest_AD Fest_AD_pkey"
+
+230726181619897504,pg_dump: creating CONSTRAINT "public.Film Film_pkey"
+
+230726181619897516,pg_dump: creating CONSTRAINT "public.News_Ad News_Ad_pkey"
+
+230726181619897585,pg_dump: creating CONSTRAINT "public.authorAbout authorAbout_pkey"
+
+230726181619897605,pg_dump: creating CONSTRAINT "public.author author_pkey"
+
+230726181619897617,pg_dump: creating CONSTRAINT "public.bookmarkUser bookmarkUser_pkey"
+
+230726181619897628,pg_dump: creating CONSTRAINT "public.countViewFilm countViewFilm_pkey"
+
+230726181619897640,pg_dump: creating CONSTRAINT "public.historyViewUser historyViewUser_pkey"
+
+230726181619897651,pg_dump: creating CONSTRAINT "public.notification notification_pkey"
+
+230726181619897736,pg_dump: creating CONSTRAINT "public.ratingUser ratingUser_pkey"
+
+230726181619897775,pg_dump: creating CONSTRAINT "public.users users_pkey"
+

@@ -127,6 +127,7 @@ async def get_role(user_id: str, request: Request,db: AsyncSession = Depends(get
             pass
     user = await _get_user_by_id_for_auth(uuid.UUID(user_id), db)
     if user is None:
+        #TODO::Убрать это нахуй
         #error
         return templates.TemplateResponse("auth/login.html", {"request": request,"dictStatus":dictStatus})
     else :

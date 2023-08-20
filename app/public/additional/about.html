@@ -1,0 +1,72 @@
+{% extends "templateBase.html" %}
+{% block link %}     {% endblock %}
+<!--- Количество уведомлений --->
+{% block countNot %} {% if dictStatus['notification'] %}  {{ dictStatus['notification']|length }} {% else %} 0 {% endif %} {% endblock %}
+
+<!--- Если автор показать блок уведомлений --->
+{% block user_block %}
+    {% if dictStatus['is_log'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+{% block author_block %}
+    {% if dictStatus['is_author'] %}
+         {{ super() }}
+    {% endif %}
+{% endblock %}
+
+
+<!--- Кнопка войти/выйти --->
+{% block enterButton %}
+{% if dictStatus['is_log'] %}
+<a class="p-2 text-white text-left" href="/user/exit">ВЫЙТИ</a>
+{% else %}
+<a class="p-2 text-white text-left" href="/user/login">ВОЙТИ</a>
+{% endif %}
+{% endblock %}
+
+{% block notifi %}
+{% if dictStatus['notification'] %}
+    {% for noti in dictStatus['notification'] %}
+                <div class=" pb-2" style="position: relative;">
+                    <div class="notification-text">
+                        {{ noti[0].description }}
+                    </div>
+                    <div class="notification-time" style="position: absolute; bottom: 4px; right: 0">
+                        <small class="text-muted">{{ noti[0].date }}</small>
+                    </div>
+                </div>
+                <div class="hr"></div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Start data -->
+
+<div class="container mt-2 mb-5 w-85 text-center" style="font-size: 17px;">
+Предлагаем вам принять участие в бета-тестировании новой онлай-площадки для начинающих кинематографистов и зрителей, любящих и ищущих интересные авторские киноработы.
+    <h5 class="gradient-text">Добро пожаловать в самый честный кинозал - Донатеатр.</h5>
+Мы рады предложить вам онлайн-площадку для истинных любителей кино.
+    <br><br>
+Вы снимаете свои студенческие работы? Или вы сняли дебютный фильм? Возможно, у вас есть интересный авторский взгляд, и вы воплотили его в киноработе. В нашем <p class="gradient-text" style="display: inline">Донатеатре вы сможете бесплатно</p> :
+    <br >
+    <ul class="text-left mb-0">
+        <li>выложить свою работу для просмотра</li>
+        <li>обсудить свою и чужие работы с кинематографистами и зрителями</li>
+        <li>поучаствовать в фестивалях с самым справедливым регламентом – победителей определяет голосование зрителей и кинематографистов.</li>
+        <li>и, конечно же, получить заслуженные донаты от благодарных зрителей.</li>
+    </ul>
+    <br>
+Вы, как зритель, любите искать и смотреть интересные киноработы? Тогда Добро пожаловать к нам в самый честный кинозал.
+Никаких билетов, подписок, комиссий. Только вы, как зритель, решаете отблагодарить создателей кино или нет.
+На кинофестивалях Донатеатра вы, как зритель, помогаете определить победителей.
+На странице кинофильма вы сможете поделиться пусть не профессиональным, но своим честным мнением зрителя. Оно особенно ценно, потому что именно для вас, а не для профессиональных кинокритиков снимается кино!
+    <br><br>
+Часто задаваемые вопросы.
+Пишите нам на <a class="gradient-text" href="/additional/callback">поддержку</a> , все часто возникающие вопросы мы систематизируем и опубликуем ответы в этом разделе
+</div>
+{% endblock %}
+

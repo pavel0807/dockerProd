@@ -64,7 +64,8 @@ main_api_router.include_router(fest_router,prefix="/fest",tags=["fest"])
 app.include_router(main_api_router)
 
 templates = Jinja2Templates(directory="public")
-@app.exception_handler(StarletteHTTPException)
+
+@app.exception_handler(404)
 async def get_main_page(request: Request,db: AsyncSession = Depends(get_db)):
     dictStatus = {"is_log": False, "is_author": False, "notification": list()}
     #best_film = _get_best_view(db)

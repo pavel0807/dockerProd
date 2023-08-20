@@ -229,7 +229,7 @@ async def send_mark(request: Request, info = Form(), db: AsyncSession = Depends(
             mark = await _create_rating(user.user_id,infoToDict['film_id'],float(infoToDict['rating']),db)
             return mark
     else:
-        return HTTPException(status_code=520, status_text=f"Database error: {'ew'}")
+        raise HTTPException(status_code=520, detail=f"Database error: ")
 
 @additional_router.post("/sendComment")
 async def send_comment(request: Request, info = Form(), db: AsyncSession = Depends(get_db)):
@@ -276,3 +276,19 @@ async def get_search(request: Request, db: AsyncSession = Depends(get_db)):
             dictStatus = {"is_log": False, "is_author": False, "notification": list()}
             pass
     return templates.TemplateResponse("additional/notification_mobile.html", {"request": request,"dictStatus":dictStatus})
+
+@additional_router.get("/about")
+async def get_about(request: Request, db: AsyncSession = Depends(get_db)):
+    dictStatus = {"is_log": False, "is_author": False, "notification": list()}
+    if request.cookies.get('auth'):
+        jwt = request.cookies.get('auth')
+        try:
+            user = await get_current_user_from_token(jwt, db)
+            if user is not None:
+                user_status = await _get_status_user(user.user_id, db)
+                user_notification = await _get_notification_for_user(user.user_id, db)
+                dictStatus = {"is_log": True, "is_author": user_status, "notification": user_notification}
+        except:
+            dictStatus = {"is_log": False, "is_author": False, "notification": list()}
+            pass
+    return templates.TemplateResponse("additional/about.html", {"request": request,"dictStatus":dictStatus})

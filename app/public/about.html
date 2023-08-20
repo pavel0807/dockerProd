@@ -75,36 +75,5 @@
             </button>
         </div>
 </div>
-<script>
-    async function send(){
-        // получаем введеное в поле имя и возраст
-        const login = document.getElementById("login").value;
-        const password = document.getElementById("password").value;
-
-        const errorDiv = document.getElementById('error');
-        let formData = new FormData();
-
-        formData.append('username', login);
-        formData.append('password', password);
-
-
-        const response = await fetch('/user/login', {
-                method: 'POST',
-                body: formData,
-            });
-        if (response.status === 511) {
-                document.location.href = document.location.href.replace(document.location.pathname,"/user/activeEmail");
-        }
-        else if (response.status === 512) {
-                errorDiv.style.display = "block";
-                errorDiv.textContent = "Такого аккаунта не существует";
-        }
-        else if (response.status === 200){
-            console.log("ok");
-            document.location.href = document.location.href.replace(document.location.pathname,'/main/');
-        }
-
-    }
-</script>
 {% endblock %}
 

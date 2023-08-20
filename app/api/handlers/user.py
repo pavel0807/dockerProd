@@ -152,14 +152,11 @@ async def login(request: Request, db: AsyncSession = Depends(get_db)):
 async def login_for_access_token(response: Response,form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     user = await authenticate_user(form_data.username, form_data.password, db)
     if not user:
-        raise HTTPException(
-            status_code=512,
-            detail="Incorrect username or password",
-        )
+        raise HTTPException( status_code = 512, detail = "Incorrect username or password")
     if user.is_active == False:
         raise HTTPException(
-            status_code=511,
-            detail="Incorrect username or password",
+            status_code = 511,
+            detail="Incorrect username or password"
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     #информация в токене

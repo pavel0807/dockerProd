@@ -3,7 +3,7 @@ import uuid
 
 from datetime import date, datetime, time, timedelta
 from fastapi import HTTPException, UploadFile
-from pydantic import BaseModel, EmailStr, validator, DateNotInTheFutureError
+from pydantic import BaseModel, EmailStr, validator
 
 class TunedModel(BaseModel):
     class Config:
@@ -118,7 +118,7 @@ class Token(BaseModel):
 class AuthorCreateDirector(BaseModel):
     user_id : uuid.UUID
     film_id : uuid.UUID
-    type = "DIRECTOR"
+    type : str = "DIRECTOR"
 
 
 class News_AD(BaseModel):

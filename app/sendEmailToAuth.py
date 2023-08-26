@@ -3,13 +3,26 @@ import time
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from pprint import pprint
+from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 
-configuration = sib_api_v3_sdk.Configuration()
-configuration.api_key['api-key'] = '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'
+
+
+conf = ConnectionConfig(
+    MAIL_USERNAME ="forworkkarpow2000pi@gmail.com",
+    MAIL_PASSWORD = "kxzghchjghwzfkhe",
+    MAIL_FROM = "forworkkarpow2000pi@gmail.com",
+    MAIL_PORT = 587,
+    MAIL_SERVER = "smtp.gmail.com",
+    MAIL_STARTTLS = True,
+    MAIL_SSL_TLS = False,
+    USE_CREDENTIALS = True,
+    VALIDATE_CERTS = True
+)
+
 
 def sendEmail(email:str, id: str):
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
-    subject = "My Subject"
+
+
     html_content = """
     <!doctype html>
 <html lang="ru">
@@ -50,12 +63,26 @@ def sendEmail(email:str, id: str):
 </body>
 </html>
     """
-    sender = {"name":"John Doe","email":"example@example.com"}
-    to = [{"email":email,"name":"Jane Doe"}]
-    params = {"parameter":"My param value","subject":"New Subject"}
-    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(to=to, html_content=html_content, sender=sender, subject=subject)
-    try:
-        api_response = api_instance.send_transac_email(send_smtp_email)
-        pprint(api_response)
-    except ApiException as e:
-        print("Exception when calling SMTPApi->send_transac_email: %s\n" % e)
+
+    message = MessageSchema(
+        subject="Регистрация на платформе Donateatr",
+        recipients=[email],
+        body=html_content,
+        subtype=MessageType.html)
+
+    fm = FastMail(conf)
+    fm.send_message(message)
+    return
+
+
+
+
+
+
+
+
+
+
+
+
+

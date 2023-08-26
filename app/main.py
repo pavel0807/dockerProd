@@ -71,7 +71,10 @@ async def get_main_page(request: Request,db: AsyncSession = Depends(get_db)):
     #best_film = _get_best_view(db)
     return templates.TemplateResponse("auth/login.html", {"request": request,"dictStatus":dictStatus})
 
-
+@app.get("/")
+async def get_main_page(request: Request,db: AsyncSession = Depends(get_db)):
+     dictStatus = {"is_log": False, "is_author": False, "notification": list()}
+     return templates.TemplateResponse("main_page.html", {"request": request,"dictStatus":dictStatus})
 
 @app.exception_handler(500)
 async def get_main_page(request: Request,db: AsyncSession = Depends(get_db)):

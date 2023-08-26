@@ -84,7 +84,8 @@
     if (search.trim() != '')
     {
         search = search.replace(/\s/gi, "_")
-        document.location.href = document.location.href.replace("search","search/"+search);
+        const regex = /search(\S*)*/
+        document.location.href = document.location.href.replace(regex,"search/"+search);
     }
   }
 </script>

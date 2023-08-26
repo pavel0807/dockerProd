@@ -1,5 +1,7 @@
 {% extends "templateBase.html" %}
-
+<script>
+    resize();
+</script>
 <!--- Дополнительные ссылки --->
 {% block link %}     <link rel="stylesheet" href="{{ url_for('static', path='/css/styleSlider.css') }}">{% endblock %}
 
@@ -126,8 +128,16 @@
             console.log(document.body.offsetWidth);
     if (document.body.offsetWidth < 1200 ) {
         console.log(document.location.pathname);
-        document.location.pathname = document.location.pathname.concat('p/');
-        console.log(document.location.pathname);
+        if (document.location.pathname == "/")
+        {
+            document.location.pathname = document.location.pathname.concat('main/p/');
+        }
+        else {
+            console.log(document.location.pathname);
+            document.location.pathname = document.location.pathname.concat('p/');
+            console.log(document.location.pathname);
+        }
+
     }
     }
 

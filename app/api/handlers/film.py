@@ -153,14 +153,18 @@ async def showFilm(uuid_film: str, request: Request, db: AsyncSession = Depends(
         await _add_history_count_view(uuid.UUID(uuid_film),db)
         id_user_author = await _get_id_author_by_film(uuid.UUID(uuid_film),db)
         author_user = await _get_user_by_id_for_auth(id_user_author,db)
-        str_uuid = str(author_user.user_id)
-        await _create_history(author_user.user_id,film_info.film_id,db)
-        pathToImg = "Img/tmpImgUser/"+str_uuid+".png"
-        if os.path.exists(pathToImg):
-            defaultImg = False
-        else:
+        print("USER ISSSSSSSSS:" +author_user.email )
+        if author_user is not None :
+            str_uuid = str(author_user.user_id)
+            pathToImg = "Img/tmpImgUser/"+str_uuid+".png"
+            if os.path.exists(pathToImg):
+                defaultImg = False
+            else:
+                defaultImg = True
+        else :
             defaultImg = True
-
+        
+        
         film_in_bookmark = False
 
         comment = await _get_comment_to_film(uuid.UUID(uuid_film),db)
@@ -186,6 +190,7 @@ async def showFilm(uuid_film: str, request: Request, db: AsyncSession = Depends(
             else:
                 if film_info:
                     film_in_bookmark = await _film_is_mark_for_user(user.user_id,film_info.film_id,db)
+                    await _create_history(user.user_id,film_info.film_id,db)
         if film_info:
             return  templates.TemplateResponse("film/film_show.html", {"request": request,"comment":commentRes,"film_in_bookmark":film_in_bookmark,"film_info":film_info,"author_user":author_user,"thereareImg":defaultImg,"user_id":author_user.user_id,"dictStatus":dictStatus})
     except IntegrityError as err:
@@ -247,6 +252,7 @@ async def showFilm(uuid_film: str, request: Request, db: AsyncSession = Depends(
             else:
                 if film_info:
                     film_in_bookmark = await _film_is_mark_for_user(user.user_id,film_info.film_id,db)
+
         if film_info:
             return  templates.TemplateResponse("film/film_show_mobile.html", {"request": request,"comment":commentRes,"film_in_bookmark":film_in_bookmark,"film_info":film_info,"author_user":author_user,"thereareImg":defaultImg,"user_id":author_user.user_id,"dictStatus":dictStatus})
     except IntegrityError as err:

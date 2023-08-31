@@ -51,10 +51,10 @@
     <h1 class="text-center pt-4 p-3 size-23 comedy gradient-text">Служба поддержки</h1>
     <div class="pb-4" style="margin: auto 0;width: 100%; ">
         <div style="margin: 0 auto;">
-            <input type="email" placeholder="Введите ваш email" style="width: 30%;">
+            <input type="email" id="email" placeholder="Введите ваш email" style="width: 30%;">
         </div>
         <div class="pt-5">
-            <textarea placeholder="Введите ваше обращение" name="message"  style="height: 30%;width: 50%;"> </textarea>
+            <textarea placeholder="Введите ваше обращение" id="text" name="message"  style="height: 30%;width: 50%;"> </textarea>
         </div>
         <div class="pt-2" >
             <button onclick="sendCallback()"  style="background-color: rgb(3,13,40);color:white;font-size: 20px;padding: 15px 20px;border-radius:10px">
@@ -63,6 +63,29 @@
         </div>
     </div>
 </div>
+<script>
+    async function sendCallback(){
+        // получаем введеное в поле имя и возраст
+        const login = document.getElementById("email").value;
+        const password = document.getElementById("text").value;
 
+        const errorDiv = document.getElementById('error');
+        let formData = new FormData();
+
+        formData.append('email', login);
+        formData.append('text', password);
+
+
+        const response = await fetch('/additional/callback', {
+                method: 'POST',
+                body: formData,
+            });
+        if (response.status === 200){
+            console.log("ok");
+            document.location.href = document.location.href.replace(document.location.pathname,'/main/');
+        }
+
+    }
+</script>
 <!-- End data -->
 {% endblock %}

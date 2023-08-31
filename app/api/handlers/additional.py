@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sendsay.api import SendsayAPI
 from api.actions.auth import enter_or_not
 from api.actions.auth import get_current_user_from_token
 from api.actions.additional import _get_mark_users,_get_history_users,_create_or_delete_mark,_film_is_mark_for_user,_create_rating
@@ -127,6 +127,40 @@ async def get_search(request: Request, db: AsyncSession = Depends(get_db)):
             pass
     return templates.TemplateResponse("additional/callback_mini.html", {"request": request,"dictStatus":dictStatus})
 
+@additional_router.post("/callback")
+async def send_callback(request: Request, email = Form(),text = Form(), db: AsyncSession = Depends(get_db)):
+    dictStatus = {"is_log": False, "is_author": False, "notification": list()}
+    html_content = " mail from :"+ email + " message: " + text
+    api = SendsayAPI(login='forworkkul2000pi@yandex.ru', password='N%\O^IR>L)')
+
+    response = api.request('issue.send', {
+        'sendwhen': 'now',
+        'letter': {
+            'subject': "Обратная связь",
+            'from.name': "Donateatr",
+            'from.email': "notification@donateatr.ru",
+            'message': {
+                'html': html_content
+            },
+        },
+        'relink' : 1,
+        'users.list': "feedback@donateatr.ru",
+        'group' : 'personal',
+    })
+    
+    if request.cookies.get('auth'):
+        jwt = request.cookies.get('auth')
+        try:
+            user = await get_current_user_from_token(jwt, db)
+            if user is not None:
+                user_status = await _get_status_user(user.user_id, db)
+                user_notification = await _get_notification_for_user(user.user_id, db)
+                dictStatus = {"is_log": True, "is_author": user_status, "notification": user_notification}
+        except:
+            dictStatus = {"is_log": False, "is_author": False, "notification": list()}
+            pass
+    return templates.TemplateResponse("additional/callback_mini.html", {"request": request,"dictStatus":dictStatus})
+
 
 @additional_router.get("/search")
 async def send_search(request: Request, db: AsyncSession = Depends(get_db)):
@@ -143,6 +177,7 @@ async def send_search(request: Request, db: AsyncSession = Depends(get_db)):
             dictStatus = {"is_log": False, "is_author": False, "notification": list()}
             pass
     return templates.TemplateResponse("additional/search.html", {"request": request,"dictStatus":dictStatus})
+
 @additional_router.get("/search/{str_search}")
 async def send_search(str_search:str,request: Request, db: AsyncSession = Depends(get_db)):
     dictStatus = {"is_log": False, "is_author": False, "notification": list()}

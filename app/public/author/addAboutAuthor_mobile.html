@@ -28,6 +28,12 @@
                 </div>
             </div>
             <div class="w-100"></div>
+            <div class="col pt-3" style="margin: 0 auto;text-align: center;">
+                <h5>Об авторе</h5>
+                <textarea name="about" id="about" cols="20" rows="10">{% if thereare %} {{ author.about_person }} {% endif %}</textarea>
+
+            </div>
+            <div class="w-100"></div>
         </div>
     </div>
     <div class="back  p-1" style="color:black;margin: 0 30%;text-align: center; ">
